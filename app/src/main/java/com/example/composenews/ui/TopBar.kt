@@ -15,18 +15,21 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun TopBar(scope: CoroutineScope, scaffoldState: ScaffoldState, currentScreen: AppScreen, rootScreens: List<AppScreen>, navController: NavController) {
+fun TopBar(
+    currentScreen: AppScreen,
+    rootScreens: List<AppScreen>,
+    onDrawerMenuClicked: () -> Unit,
+    onBackClicked: () -> Unit
+) {
     TopAppBar(
-        title =  {Text(text = currentScreen.name, fontSize = 18.sp)},
+        title = { Text(text = currentScreen.name, style = MaterialTheme.typography.h6) },
         navigationIcon = {
-            if (rootScreens.contains(currentScreen)){
-                IconButton(onClick = { scope.launch { scaffoldState.drawerState.open() } }) {
-                    Icon(Icons.Filled.Menu,"")
+            if (rootScreens.contains(currentScreen)) {
+                IconButton(onClick = onDrawerMenuClicked) {
+                    Icon(Icons.Filled.Menu, "")
                 }
             } else {
-                IconButton(onClick = {
-                    navController.popBackStack()
-                }) {
+                IconButton(onClick = onBackClicked) {
                     Icon(Icons.Filled.ArrowBack, "Back")
                 }
             }
@@ -40,7 +43,12 @@ fun TopBarPreview() {
     val scope = rememberCoroutineScope()
     val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
     val navController = rememberNavController()
-    TopBar(scope = scope, scaffoldState = scaffoldState, AppScreen.Home, AppScreen.values().asList(), navController = navController)
+    TopBar(
+        AppScreen.Home,
+        AppScreen.values().asList(),
+        onDrawerMenuClicked = {},
+        onBackClicked = {}
+    )
 }
 
 @Preview(showBackground = false)
@@ -49,5 +57,10 @@ fun TopBarPreviewBack() {
     val scope = rememberCoroutineScope()
     val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
     val navController = rememberNavController()
-    TopBar(scope = scope, scaffoldState = scaffoldState, AppScreen.Interest, listOf(AppScreen.Home), navController = navController)
+    TopBar(
+        AppScreen.Interest,
+        listOf(AppScreen.Home),
+        onDrawerMenuClicked = {},
+        onBackClicked = {}
+    )
 }
