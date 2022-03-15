@@ -3,12 +3,11 @@ package com.example.composenews
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -19,12 +18,17 @@ import com.example.composenews.ui.HomeScreen
 import com.example.composenews.ui.InterestScreen
 import com.example.composenews.ui.TopBar
 import com.example.composenews.ui.theme.ComposeNewsTheme
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import java.lang.reflect.Modifier
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    private val viewModel: MainViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        viewModel.testing()
         setContent {
             ComposeNewsTheme {
                 // A surface container using the 'background' color from the theme
