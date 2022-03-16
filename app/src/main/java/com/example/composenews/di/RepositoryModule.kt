@@ -7,6 +7,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineDispatcher
 import javax.inject.Singleton
 
 @Module
@@ -15,8 +16,8 @@ object RepositoryModule {
 
     @Provides
     @Singleton
-    fun provideRepository(newsApi : NewsApi): ComposeChatRepository{
-        return ComposeChatRepositoryImpl(newsApi)
+    fun provideRepository(newsApi : NewsApi, @DefaultDispatcher dispatcher: CoroutineDispatcher): ComposeChatRepository{
+        return ComposeChatRepositoryImpl(newsApi, dispatcher)
     }
 
 }

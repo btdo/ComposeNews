@@ -14,6 +14,11 @@ interface NewsApi {
     ): NewsApiResponse
 
     @GET("/v2/top-headlines")
-    suspend fun getTopHeadLines(@Query("query") query: String? = null): NewsApiResponse
+    suspend fun getTopHeadLines(
+        @Query("country") country: String? = "ca",
+        @Query("category") category: String? = "ca",
+        @Query("pageSize") pageSize: Int? = null,
+        @Query("page") page: Int? = null
+    ): NewsApiResponse
 
 }

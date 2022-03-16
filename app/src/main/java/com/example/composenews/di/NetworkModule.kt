@@ -20,7 +20,7 @@ object NetworkModule {
     @Singleton
     fun provideOkHttpClient(authInterceptor: ApiKeyAuthorizationHeader): OkHttpClient {
         return OkHttpClient.Builder()
-            .addInterceptor(HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.HEADERS})
+            .addInterceptor(HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY})
             .addInterceptor(authInterceptor)
             .build()
     }

@@ -28,12 +28,12 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.testing()
+
         setContent {
             ComposeNewsTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(color = MaterialTheme.colors.background) {
-                    MainApp()
+                    MainApp(viewModel)
                 }
             }
         }
@@ -41,13 +41,14 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainApp() {
+fun MainApp(viewModel: MainViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
     val navController = rememberNavController()
     val backstackEntry = navController.currentBackStackEntryAsState()
     val currentScreen = AppScreen.fromRoute(backstackEntry.value?.destination?.route)
     val scaffoldState =
         rememberScaffoldState(rememberDrawerState(initialValue = DrawerValue.Closed))
     val coroutineScope = rememberCoroutineScope()
+    val news = viewModel.searchedNews.collectAsStateLifeCycle()
 
     Scaffold(
         scaffoldState = scaffoldState,
