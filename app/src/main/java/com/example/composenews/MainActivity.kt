@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
@@ -13,10 +14,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.composenews.ui.Drawer
-import com.example.composenews.ui.HomeScreen
-import com.example.composenews.ui.InterestScreen
-import com.example.composenews.ui.TopBar
+import com.example.composenews.models.NewsApiResponse
+import com.example.composenews.models.QueryResult
+import com.example.composenews.ui.*
 import com.example.composenews.ui.theme.ComposeNewsTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -41,14 +41,30 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainApp(viewModel: MainViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
+fun MainApp(viewModel: MainViewModel) {
+    val topHeadlinesNews by viewModel.topHeadlinesNews.collectAsStateLifeCycle()
+
+    when (topHeadlinesNews) {
+        is QueryResult.Loading -> {
+            LoadingScreen()
+        }
+        is QueryResult.Success -> {
+            AppScaffolded(headlineNews = (topHeadlinesNews as QueryResult.Success<NewsApiResponse>).data)
+        }
+        is QueryResult.Error -> {
+            ErrorScreen()
+        }
+    }
+}
+
+@Composable
+fun AppScaffolded(headlineNews: NewsApiResponse) {
     val navController = rememberNavController()
     val backstackEntry = navController.currentBackStackEntryAsState()
     val currentScreen = AppScreen.fromRoute(backstackEntry.value?.destination?.route)
     val scaffoldState =
         rememberScaffoldState(rememberDrawerState(initialValue = DrawerValue.Closed))
     val coroutineScope = rememberCoroutineScope()
-    val news = viewModel.searchedNews.collectAsStateLifeCycle()
 
     Scaffold(
         scaffoldState = scaffoldState,
@@ -87,15 +103,15 @@ fun MainApp(viewModel: MainViewModel = androidx.lifecycle.viewmodel.compose.view
                 }
             }
         }) {
-        Navigation(navController = navController)
+        Navigation(navController = navController, headlineNews)
     }
 }
 
 @Composable
-fun Navigation(navController: NavHostController) {
+fun Navigation(navController: NavHostController, newsApiResponse: NewsApiResponse) {
     NavHost(navController = navController, startDestination = AppScreen.Home.name) {
         composable(AppScreen.Home.name) {
-            HomeScreen()
+            HeadlinesScreen(newsApiResponse)
         }
         composable(AppScreen.Interest.name) {
             InterestScreen()
@@ -108,8 +124,7 @@ fun Navigation(navController: NavHostController) {
 fun DefaultPreview() {
     ComposeNewsTheme {
         Surface {
-            MainApp()
+            AppScaffolded(headlineNews = NewsApiResponse(listOf(), "OK", 0))
         }
-
     }
 }

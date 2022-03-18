@@ -20,8 +20,8 @@ package com.example.composenews.models
  * A generic class that holds a value.
  * @param <T>
  */
-sealed class NetworkResult<out R> {
-    data class Success<out T>(val data: T) : NetworkResult<T>()
-    data class Error(val exception: Exception) : NetworkResult<Nothing>()
-    object Loading : NetworkResult<Nothing>()
+sealed class QueryResult<out R> {
+    data class Success<out T>(val data: T) : QueryResult<T>()
+    data class Error(val exception: Throwable) : QueryResult<Nothing>()
+    object Loading : QueryResult<Nothing>()
 }

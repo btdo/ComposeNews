@@ -6,9 +6,10 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.composenews.models.NewsApiResponse
 
 @Composable
-fun HomeScreen() {
+fun HeadlinesScreen(news: NewsApiResponse) {
     Column(modifier = Modifier.fillMaxSize()) {
         Text(text = "Home Screen")
     }
@@ -17,5 +18,5 @@ fun HomeScreen() {
 @Preview
 @Composable
 fun HomeScreenPreview() {
-    HomeScreen()
+    HeadlinesScreen(NewsApiResponse(listOf(), "OK", 0))
 }
