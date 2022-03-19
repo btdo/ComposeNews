@@ -1,7 +1,7 @@
 package com.example.composenews.models
 
 data class Article(
-    val author: String,
+    val author: String? = null,
     val content: String,
     val description: String,
     val publishedAt: String,

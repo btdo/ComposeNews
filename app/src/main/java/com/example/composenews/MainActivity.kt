@@ -4,10 +4,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -103,15 +105,20 @@ fun AppScaffolded(headlineNews: NewsApiResponse) {
                 }
             }
         }) {
-        Navigation(navController = navController, headlineNews)
+        val padding = Modifier.padding(it)
+        Navigation(navController = navController, headlineNews, padding)
     }
 }
 
 @Composable
-fun Navigation(navController: NavHostController, newsApiResponse: NewsApiResponse) {
+fun Navigation(
+    navController: NavHostController,
+    newsApiResponse: NewsApiResponse,
+    modifier: Modifier = Modifier
+) {
     NavHost(navController = navController, startDestination = AppScreen.Home.name) {
         composable(AppScreen.Home.name) {
-            HeadlinesScreen(newsApiResponse)
+            HeadlinesScreen(newsApiResponse, modifier = modifier)
         }
         composable(AppScreen.Interest.name) {
             InterestScreen()
