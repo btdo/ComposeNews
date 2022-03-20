@@ -1,5 +1,6 @@
 package com.example.composenews.models
 
+
 val FakeArticle = Article(
     title = "Russian forces pound Ukraine's capital",
     description = "Russian forces pressed their assault on Ukrainian cities Friday, " +
@@ -24,24 +25,16 @@ val FakeArticle2 = Article(
     source = Source(id = "cbc-news", name = "CBC News")
 )
 
-val FakeArticleUI = ArticleUI(
-    title = "Russian forces pound Ukraine's capital",
-    description = "Russian forces pressed their assault on Ukrainian cities Friday, " +
-            "with new missile strikes and shelling on the capital Kyiv and the outskirts " +
-            "of the western city of Lviv, as world leaders pushed for an investigation " +
-            "into the Kremlin's repeated attacks on civil…",
-    url = "https://www.cbc.ca/news/world/russia-ukraine-missiles-airstrikes-war-1.6389343",
-    urlToImage = "https://i.cbc.ca/1.6389383.1647602981!/fileImage/httpImage/image.JPG_gen/derivatives/16x9_620/ukraine-crisis.JPG",
-    publishedAt = "2022-03-18T20:21:41Z",
-    author = "Andrew Yeung",
-    content = "The latest:\r\n<ul><li>Russian military fires missiles at airport near western city of Lviv, shelling reported in Kyiv area.</li><li>Ukrainian official says 130 people have been rescued from rubble of … [+9182 chars]",
-    source = Source(id = "cbc-news", name = "CBC News")
+val FakeHeadlinesUI = HeadlinesUI(
+    FakeArticle.toArticleUI(),
+    listOf(
+        FakeArticle2.toArticleUI(),
+        FakeArticle2.toArticleUI().copy(author = "Test"),
+        FakeArticle2.toArticleUI().copy(title = "Another fake article")
+    )
 )
-
-val FakeNewsApiResponse = NewsApiResponse(listOf(FakeArticle, FakeArticle2), "ok", 2)
-
-val FakeNewsHomeUI = HomeUI(
-    HeadlinesUI.fromNetworkResponse(FakeNewsApiResponse), popular = OtherNews.fromNetworkResponse(
-        FakeNewsApiResponse
-    ), topicFavourites = OtherNews.fromNetworkResponse(FakeNewsApiResponse)
+val FakeHomeUIState = HomeUI(
+    FakeHeadlinesUI,
+    OtherNews(listOf(FakeArticle2.toArticleUI())),
+    OtherNews(listOf(FakeArticle2.toArticleUI()))
 )

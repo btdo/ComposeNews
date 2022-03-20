@@ -16,7 +16,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.composenews.models.NewsApiResponse
+import com.example.composenews.models.FakeHomeUIState
+import com.example.composenews.models.HomeUI
 import com.example.composenews.models.QueryResult
 import com.example.composenews.ui.*
 import com.example.composenews.ui.theme.ComposeNewsTheme
@@ -44,14 +45,14 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MainApp(viewModel: MainViewModel) {
-    val topHeadlinesNews by viewModel.topHeadlinesNews.collectAsStateLifeCycle()
+    val topHeadlinesNews by viewModel.homeUIState.collectAsStateLifeCycle()
 
     when (topHeadlinesNews) {
         is QueryResult.Loading -> {
             LoadingScreen()
         }
         is QueryResult.Success -> {
-            AppScaffolded(headlineNews = (topHeadlinesNews as QueryResult.Success<NewsApiResponse>).data)
+            AppScaffolded(homeUI = (topHeadlinesNews as QueryResult.Success<HomeUI>).data)
         }
         is QueryResult.Error -> {
             ErrorScreen()
@@ -60,7 +61,7 @@ fun MainApp(viewModel: MainViewModel) {
 }
 
 @Composable
-fun AppScaffolded(headlineNews: NewsApiResponse) {
+fun AppScaffolded(homeUI: HomeUI) {
     val navController = rememberNavController()
     val backstackEntry = navController.currentBackStackEntryAsState()
     val currentScreen = AppScreen.fromRoute(backstackEntry.value?.destination?.route)
@@ -106,19 +107,19 @@ fun AppScaffolded(headlineNews: NewsApiResponse) {
             }
         }) {
         val padding = Modifier.padding(it)
-        Navigation(navController = navController, headlineNews, padding)
+        Navigation(navController = navController, homeUI, padding)
     }
 }
 
 @Composable
 fun Navigation(
     navController: NavHostController,
-    newsApiResponse: NewsApiResponse,
+    newsApiResponse: HomeUI,
     modifier: Modifier = Modifier
 ) {
     NavHost(navController = navController, startDestination = AppScreen.Home.name) {
         composable(AppScreen.Home.name) {
-            HeadlinesScreen(newsApiResponse, modifier = modifier)
+            HomeScreen(newsApiResponse, modifier = modifier)
         }
         composable(AppScreen.Interest.name) {
             InterestScreen()
@@ -131,7 +132,7 @@ fun Navigation(
 fun DefaultPreview() {
     ComposeNewsTheme {
         Surface {
-            AppScaffolded(headlineNews = NewsApiResponse(listOf(), "OK", 0))
+            AppScaffolded(homeUI = FakeHomeUIState)
         }
     }
 }
