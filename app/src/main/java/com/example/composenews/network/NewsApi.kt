@@ -12,15 +12,16 @@ interface NewsApi {
         @Query("q") query: String? = null,
         @Query("sortBy") sortBy: String? = SortBy.publishedAt.name,
         @Query("pageSize") pageSize: Int? = 5,
-        @Query("page") page: Int? = 0
+        @Query("page") page: Int? = 1
     ): NewsApiResponse
 
     @GET("/v2/top-headlines")
     suspend fun getTopHeadLines(
         @Query("country") country: String? = "ca",
+        @Query("sortBy") sortBy: String? = SortBy.publishedAt.name,
         @Query("category") category: String? = null,
         @Query("pageSize") pageSize: Int? = 5,
-        @Query("page") page: Int? = 0
+        @Query("page") page: Int? = 1
     ): NewsApiResponse
 
 }

@@ -49,7 +49,7 @@ class MainViewModel @Inject constructor(
             val topic = repository.interestedTopics.first()
             combine(
                 repository.getHeadlines(),
-                repository.everything(sortBy = SortBy.popularity),
+                repository.getHeadlines(category = Category.general, sortBy = SortBy.popularity),
                 repository.everything(query = topic.name)
             ) { headlines, popular, interested ->
                 QueryResult.Success(
