@@ -3,8 +3,7 @@ package com.example.composenews
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.composenews.di.DefaultDispatcher
-import com.example.composenews.models.NewsApiResponse
-import com.example.composenews.models.QueryResult
+import com.example.composenews.models.*
 import com.example.composenews.repository.ComposeChatRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -17,45 +16,55 @@ class MainViewModel @Inject constructor(
     private val repository: ComposeChatRepository,
     @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
 ) : ViewModel() {
-    private val _query = MutableStateFlow("ukraine")
-    val searchedNews: StateFlow<QueryResult<NewsApiResponse>> = _query.debounce(1000).filter {
+    private val _query = MutableSharedFlow<String>(replay = 0)
+    val searchedNews: Flow<QueryResult<NewsApiResponse>> = _query.debounce(1000).filter {
         return@filter it.isNotEmpty()
     }.flatMapLatest {
-        repository.searchNews(it)
+        repository.everything(it)
+    }.flatMapLatest {
+        flowOf(QueryResult.Success(it))
     }.catch { exception: Throwable ->
         QueryResult.Error(exception = exception)
     }.onStart {
         QueryResult.Loading
-    }.stateIn(
-        viewModelScope, started = SharingStarted.WhileSubscribed(5000L),
-        initialValue = QueryResult.Loading
-    )
+    }
 
-    private val _topHeadLineNews =
-        MutableStateFlow<QueryResult<NewsApiResponse>>(QueryResult.Loading)
-    val topHeadlinesNews: StateFlow<QueryResult<NewsApiResponse>>
-        get() = _topHeadLineNews
+    private val _homeUIState =
+        MutableStateFlow<QueryResult<HomeUI>>(QueryResult.Loading)
+    val homeUIState: StateFlow<QueryResult<HomeUI>>
+        get() = _homeUIState
 
     init {
-        getHeadlines()
+        getHomeUiState()
     }
 
     fun searchNews(query: String) {
-        _query.value = query
+        viewModelScope.launch(defaultDispatcher) {
+            _query.emit(query)
+        }
     }
 
-    fun refreshHeadlines() {
-        getHeadlines()
-    }
-
-    private fun getHeadlines() {
-        viewModelScope.launch {
-            repository.getHeadlines().catch { exception: Throwable ->
-                _topHeadLineNews.value = QueryResult.Error(exception = exception)
+    private fun getHomeUiState() {
+        viewModelScope.launch(defaultDispatcher) {
+            val topic = repository.interestedTopics.first()
+            combine(
+                repository.getHeadlines(),
+                repository.everything(sortBy = SortBy.popularity),
+                repository.everything(query = topic.name)
+            ) { headlines, popular, interested ->
+                QueryResult.Success(
+                    HomeUI(
+                        HeadlinesUI.fromNetworkResponse(headlines),
+                        OtherNews.fromNetworkResponse(popular),
+                        OtherNews.fromNetworkResponse(interested)
+                    )
+                )
+            }.catch { exception: Throwable ->
+                QueryResult.Error(exception = exception)
             }.onStart {
                 QueryResult.Loading
             }.collect {
-                _topHeadLineNews.value = it
+                _homeUIState.value = it
             }
         }
     }

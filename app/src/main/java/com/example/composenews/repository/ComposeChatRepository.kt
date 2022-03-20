@@ -1,18 +1,25 @@
 package com.example.composenews.repository
 
+import com.example.composenews.models.Category
 import com.example.composenews.models.NewsApiResponse
-import com.example.composenews.models.QueryResult
+import com.example.composenews.models.SortBy
 import com.example.composenews.network.NewsApi
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
 
 interface ComposeChatRepository {
-    suspend fun searchNews(query: String): Flow<QueryResult<NewsApiResponse>>
-    suspend fun getHeadlines(): Flow<QueryResult<NewsApiResponse>>
+    val interestedTopics: Flow<Category>
+    suspend fun everything(
+        query: String? = null,
+        sortBy: SortBy = SortBy.publishedAt
+    ): Flow<NewsApiResponse>
+
+    suspend fun getHeadlines(): Flow<NewsApiResponse>
 }
 
 class ComposeChatRepositoryImpl @Inject constructor(
@@ -20,18 +27,20 @@ class ComposeChatRepositoryImpl @Inject constructor(
     private val defaultDispatcher: CoroutineDispatcher
 ) : ComposeChatRepository {
 
-    override suspend fun searchNews(query: String): Flow<QueryResult<NewsApiResponse>> {
-        return safeApiCall { api.getEverything(query) }
+    override val interestedTopics: Flow<Category> =
+        flowOf(Category.business, Category.general, Category.sports)
+
+    override suspend fun everything(query: String?, sortBy: SortBy): Flow<NewsApiResponse> {
+        return safeApiCall { api.getEverything(query = query, sortBy = sortBy.name) }
     }
 
-    override suspend fun getHeadlines(): Flow<QueryResult<NewsApiResponse>> {
+    override suspend fun getHeadlines(): Flow<NewsApiResponse> {
         return safeApiCall { api.getTopHeadLines() }
     }
 
-    private suspend fun safeApiCall(apiCall: suspend () -> NewsApiResponse): Flow<QueryResult<NewsApiResponse>> {
+    private suspend fun safeApiCall(apiCall: suspend () -> NewsApiResponse): Flow<NewsApiResponse> {
         return flow {
-            val result = apiCall()
-            emit(QueryResult.Success(result))
+            emit(apiCall())
         }.flowOn(defaultDispatcher)
     }
 }
