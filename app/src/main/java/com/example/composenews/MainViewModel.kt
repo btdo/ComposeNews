@@ -60,7 +60,7 @@ class MainViewModel @Inject constructor(
                     )
                 )
             }.catch { exception: Throwable ->
-                QueryResult.Error(exception = exception)
+                _homeUIState.value = QueryResult.Error(exception = exception)
             }.onStart {
                 QueryResult.Loading
             }.collect {

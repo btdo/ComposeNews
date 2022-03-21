@@ -30,7 +30,7 @@ val FakeHeadlinesUI = HeadlinesUI(
     listOf(
         FakeArticle2.toArticleUI(),
         FakeArticle2.toArticleUI().copy(author = "Test"),
-        FakeArticle2.toArticleUI().copy(title = "Another fake article")
+        FakeArticle2.toArticleUI().copy(title = "Another fake article", isBookMarked = true)
     )
 )
 val FakeHomeUIState = HomeUI(

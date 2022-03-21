@@ -2,13 +2,13 @@ package com.example.composenews.models
 
 data class Article(
     val author: String? = null,
-    val content: String,
-    val description: String,
+    val content: String? = null,
+    val description: String? = null,
     val publishedAt: String,
     val source: Source,
     val title: String,
     val url: String,
-    val urlToImage: String
+    val urlToImage: String? = null
 ) {
     fun toArticleUI(): ArticleUI {
         return ArticleUI(

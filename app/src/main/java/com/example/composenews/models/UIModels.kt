@@ -4,7 +4,7 @@ data class HeadlinesUI(val topHeadline: ArticleUI, val otherHeadlines: List<Arti
     companion object {
         fun fromNetworkResponse(response: NewsApiResponse): HeadlinesUI {
             val topHeadline = response.articles[0].toArticleUI()
-            val articleUIs = (1 until 3).map {
+            val articleUIs = (1 until 5).map {
                 response.articles[it]
             }.map {
                 it.toArticleUI()
@@ -29,12 +29,13 @@ data class OtherNews(val interestedTopics: List<ArticleUI>) {
 
 data class ArticleUI(
     val author: String? = null,
-    val content: String,
-    val description: String,
+    val content: String? = null,
+    val description: String? = null,
     val publishedAt: String,
     val source: Source,
     val title: String,
     val url: String,
-    val urlToImage: String,
-    val fromTopic: String? = null
+    val urlToImage: String? = null,
+    val fromTopic: String? = null,
+    val isBookMarked: Boolean = false
 )
