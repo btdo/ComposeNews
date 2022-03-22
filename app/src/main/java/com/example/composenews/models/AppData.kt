@@ -29,7 +29,6 @@ val FakeHeadlinesUI = HeadlinesUI(
     FakeArticle.toArticleUI(),
     listOf(
         FakeArticle2.toArticleUI(),
-        FakeArticle2.toArticleUI().copy(author = "Test"),
         FakeArticle2.toArticleUI().copy(title = "Another fake article", isBookMarked = true)
     )
 )

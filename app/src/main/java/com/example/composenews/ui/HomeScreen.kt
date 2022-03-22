@@ -1,9 +1,7 @@
 package com.example.composenews.ui
 
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
@@ -25,7 +23,12 @@ import com.example.composenews.models.FakeHomeUIState
 import com.example.composenews.models.HomeUI
 
 @Composable
-fun HomeScreen(homeUI: HomeUI, modifier: Modifier = Modifier) {
+fun HomeScreen(
+    homeUI: HomeUI,
+    onArticleClicked: (ArticleUI) -> Unit,
+    onBookmarkSelected: (ArticleUI) -> Unit,
+    modifier: Modifier = Modifier
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -35,23 +38,57 @@ fun HomeScreen(homeUI: HomeUI, modifier: Modifier = Modifier) {
                 rememberScrollState()
             )
     ) {
-        Text(
-            text = stringResource(id = R.string.home_top_section_title),
-            style = MaterialTheme.typography.subtitle1
-        )
+        SectionTitle(title = stringResource(id = R.string.home_top_section_title))
+        Spacer(modifier = Modifier.height(12.dp))
         HeadlineItem(article = homeUI.headlines.topHeadline)
         SectionDivider()
         homeUI.headlines.otherHeadlines.forEach {
-            NewsListItem(article = it, onSelect = {})
+            ArticleListColumnItem(
+                article = it,
+                onArticleClicked = onArticleClicked,
+                onBookmarkSelected = onBookmarkSelected
+            )
             SectionDivider()
         }
+        SectionTitle(title = stringResource(id = R.string.home_popular_section_title))
+        Spacer(modifier = Modifier.height(12.dp))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState())
+        ) {
+            homeUI.popular.articles.forEach { article ->
+                Card(
+                    shape = MaterialTheme.shapes.medium,
+                    modifier = modifier.size(280.dp, 240.dp)
+                ) {
+                    ArticleListRowItem(
+                        article = article,
+                        onArticleClicked = onArticleClicked,
+                        onBookmarkSelected = onBookmarkSelected
+                    )
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+            }
+        }
+        Spacer(modifier = Modifier.height(12.dp))
+        SectionDivider()
     }
+}
+
+
+@Composable
+private fun SectionTitle(title: String) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.h6
+    )
 }
 
 @Preview
 @Composable
 fun HomeScreenPreview() {
-    HomeScreen(FakeHomeUIState)
+    HomeScreen(FakeHomeUIState, {}, {})
 }
 
 @ExperimentalCoilApi
@@ -83,12 +120,66 @@ fun HeadlineItem(article: ArticleUI) {
 }
 
 @Composable
-fun NewsListItem(article: ArticleUI, onSelect: (ArticleUI) -> Unit) {
+fun ArticleListRowItem(
+    article: ArticleUI,
+    onArticleClicked: (ArticleUI) -> Unit,
+    onBookmarkSelected: (ArticleUI) -> Unit
+) {
+    val painter = rememberImagePainter(data = article.urlToImage)
+    val imageModifier = Modifier
+        .fillMaxWidth()
+        .height(100.dp)
+        .clip(shape = MaterialTheme.shapes.small)
+    Column(modifier = Modifier.clickable {
+        onArticleClicked(article)
+    }) {
+        Image(
+            painter = painter,
+            contentDescription = article.description,
+            modifier = imageModifier,
+            contentScale = ContentScale.Crop
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Row {
+            ArticleListRowItemContent(article = article, modifier = Modifier.weight(1f))
+            BookmarkButton(
+                modifier = Modifier.align(Alignment.CenterVertically),
+                selected = article.isBookMarked
+            ) {
+                onBookmarkSelected(article)
+            }
+        }
+    }
+}
+
+@Composable
+fun ArticleListRowItemContent(article: ArticleUI, modifier: Modifier = Modifier) {
+    Column(modifier = modifier) {
+        Text(text = article.source.name, style = MaterialTheme.typography.subtitle1)
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(text = article.title, style = MaterialTheme.typography.subtitle2)
+        Spacer(modifier = Modifier.height(8.dp))
+        article.author?.let {
+            Text(text = article.author, style = MaterialTheme.typography.body1)
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+        CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
+            Text(text = article.publishedAt, style = MaterialTheme.typography.body2)
+        }
+    }
+}
+
+@Composable
+fun ArticleListColumnItem(
+    article: ArticleUI,
+    onArticleClicked: (ArticleUI) -> Unit,
+    onBookmarkSelected: (ArticleUI) -> Unit
+) {
     val painter = rememberImagePainter(data = article.urlToImage)
     val imageModifier = Modifier
         .size(40.dp, 40.dp)
         .clip(shape = MaterialTheme.shapes.small)
-    Column {
+    Column(modifier = Modifier.clickable { onArticleClicked(article) }) {
         Text(text = article.source.name, style = MaterialTheme.typography.subtitle1)
         Spacer(modifier = Modifier.height(8.dp))
         Row {
@@ -114,7 +205,7 @@ fun NewsListItem(article: ArticleUI, onSelect: (ArticleUI) -> Unit) {
                 modifier = Modifier.align(Alignment.CenterVertically),
                 selected = article.isBookMarked
             ) {
-                onSelect(article)
+                onBookmarkSelected(article)
             }
         }
     }

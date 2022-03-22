@@ -4,7 +4,7 @@ data class HeadlinesUI(val topHeadline: ArticleUI, val otherHeadlines: List<Arti
     companion object {
         fun fromNetworkResponse(response: NewsApiResponse): HeadlinesUI {
             val topHeadline = response.articles[0].toArticleUI()
-            val articleUIs = (1 until 5).map {
+            val articleUIs = (1 until 4).map {
                 response.articles[it]
             }.map {
                 it.toArticleUI()
@@ -16,7 +16,7 @@ data class HeadlinesUI(val topHeadline: ArticleUI, val otherHeadlines: List<Arti
 
 class HomeUI(val headlines: HeadlinesUI, val popular: OtherNews, val topicFavourites: OtherNews)
 
-data class OtherNews(val interestedTopics: List<ArticleUI>) {
+data class OtherNews(val articles: List<ArticleUI>) {
     companion object {
         fun fromNetworkResponse(response: NewsApiResponse): OtherNews {
             val articles = response.articles.take(5).map {

@@ -119,7 +119,7 @@ fun Navigation(
 ) {
     NavHost(navController = navController, startDestination = AppScreen.Home.name) {
         composable(AppScreen.Home.name) {
-            HomeScreen(newsApiResponse, modifier = modifier)
+            HomeScreen(newsApiResponse, {}, {}, modifier = modifier)
         }
         composable(AppScreen.Interest.name) {
             InterestScreen()
