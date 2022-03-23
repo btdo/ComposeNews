@@ -34,6 +34,6 @@ val FakeHeadlinesUI = HeadlinesUI(
 )
 val FakeHomeUIState = HomeUI(
     FakeHeadlinesUI,
-    OtherNews(listOf(FakeArticle2.toArticleUI())),
+    OtherNews(listOf(FakeArticle.toArticleUI(), FakeArticle2.toArticleUI())),
     OtherNews(listOf(FakeArticle2.toArticleUI()))
 )

@@ -18,10 +18,9 @@ import androidx.compose.ui.unit.dp
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
 import com.example.composenews.R
-import com.example.composenews.models.ArticleUI
-import com.example.composenews.models.FakeHomeUIState
-import com.example.composenews.models.HomeUI
+import com.example.composenews.models.*
 
+@ExperimentalCoilApi
 @Composable
 fun HomeScreen(
     homeUI: HomeUI,
@@ -38,44 +37,77 @@ fun HomeScreen(
                 rememberScrollState()
             )
     ) {
-        SectionTitle(title = stringResource(id = R.string.home_top_section_title))
-        Spacer(modifier = Modifier.height(12.dp))
-        HeadlineItem(article = homeUI.headlines.topHeadline)
-        SectionDivider()
-        homeUI.headlines.otherHeadlines.forEach {
-            ArticleListColumnItem(
-                article = it,
-                onArticleClicked = onArticleClicked,
-                onBookmarkSelected = onBookmarkSelected
-            )
-            SectionDivider()
-        }
-        SectionTitle(title = stringResource(id = R.string.home_popular_section_title))
-        Spacer(modifier = Modifier.height(12.dp))
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState())
-        ) {
-            homeUI.popular.articles.forEach { article ->
-                Card(
-                    shape = MaterialTheme.shapes.medium,
-                    modifier = modifier.size(280.dp, 240.dp)
-                ) {
-                    ArticleListRowItem(
-                        article = article,
-                        onArticleClicked = onArticleClicked,
-                        onBookmarkSelected = onBookmarkSelected
-                    )
-                }
-                Spacer(modifier = Modifier.width(12.dp))
-            }
-        }
-        Spacer(modifier = Modifier.height(12.dp))
+        TopStories(
+            headlines = homeUI.headlines,
+            onArticleClicked = onArticleClicked,
+            onBookmarkSelected = onBookmarkSelected
+        )
+        PopularStories(popular = homeUI.popular, onArticleClicked, onBookmarkSelected)
+    }
+}
+
+@ExperimentalCoilApi
+@Composable
+fun TopStories(
+    headlines: HeadlinesUI, onArticleClicked: (ArticleUI) -> Unit,
+    onBookmarkSelected: (ArticleUI) -> Unit,
+) {
+    SectionTitle(title = stringResource(id = R.string.home_top_section_title))
+    Spacer(modifier = Modifier.height(12.dp))
+    HeadlineItem(article = headlines.topHeadline)
+    SectionDivider()
+    headlines.otherHeadlines.forEach {
+        ArticleListColumnItem(
+            article = it,
+            onArticleClicked = onArticleClicked,
+            onBookmarkSelected = onBookmarkSelected
+        )
         SectionDivider()
     }
 }
 
+
+@ExperimentalCoilApi
+@Composable
+private fun PopularStories(
+    popular: OtherNews,
+    onArticleClicked: (ArticleUI) -> Unit,
+    onBookmarkSelected: (ArticleUI) -> Unit
+) {
+    SectionTitle(title = stringResource(id = R.string.home_popular_section_title))
+    Spacer(modifier = Modifier.height(12.dp))
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState())
+    ) {
+        popular.articles.forEach { article ->
+            Card(
+                shape = MaterialTheme.shapes.medium,
+                modifier = Modifier.size(280.dp, 240.dp)
+            ) {
+                ArticleListRowItem(
+                    article = article,
+                    onArticleClicked = onArticleClicked,
+                    onBookmarkSelected = onBookmarkSelected
+                )
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+        }
+    }
+    Spacer(modifier = Modifier.height(12.dp))
+    SectionDivider()
+}
+
+@ExperimentalCoilApi
+@Composable
+@Preview
+private fun PopularStoriesPreview() {
+    PopularStories(
+        popular = FakeHomeUIState.popular,
+        onArticleClicked = {},
+        onBookmarkSelected = {})
+}
 
 @Composable
 private fun SectionTitle(title: String) {
@@ -85,6 +117,7 @@ private fun SectionTitle(title: String) {
     )
 }
 
+@ExperimentalCoilApi
 @Preview
 @Composable
 fun HomeScreenPreview() {
@@ -107,18 +140,11 @@ fun HeadlineItem(article: ArticleUI) {
             contentScale = ContentScale.Crop
         )
         Spacer(modifier = Modifier.height(12.dp))
-        Text(text = article.title, style = MaterialTheme.typography.h5)
-        Spacer(modifier = Modifier.height(8.dp))
-        article.author?.let {
-            Text(text = article.author, style = MaterialTheme.typography.body1)
-            Spacer(modifier = Modifier.height(8.dp))
-        }
-        CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
-            Text(text = article.publishedAt, style = MaterialTheme.typography.body2)
-        }
+        ArticleItemContent(article = article)
     }
 }
 
+@ExperimentalCoilApi
 @Composable
 fun ArticleListRowItem(
     article: ArticleUI,
@@ -141,7 +167,7 @@ fun ArticleListRowItem(
         )
         Spacer(modifier = Modifier.height(8.dp))
         Row {
-            ArticleListRowItemContent(article = article, modifier = Modifier.weight(1f))
+            ArticleItemContent(article = article, modifier = Modifier.weight(1f))
             BookmarkButton(
                 modifier = Modifier.align(Alignment.CenterVertically),
                 selected = article.isBookMarked
@@ -153,22 +179,15 @@ fun ArticleListRowItem(
 }
 
 @Composable
-fun ArticleListRowItemContent(article: ArticleUI, modifier: Modifier = Modifier) {
+fun ArticleItemContent(article: ArticleUI, modifier: Modifier = Modifier) {
     Column(modifier = modifier) {
         Text(text = article.source.name, style = MaterialTheme.typography.subtitle1)
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text = article.title, style = MaterialTheme.typography.subtitle2)
-        Spacer(modifier = Modifier.height(8.dp))
-        article.author?.let {
-            Text(text = article.author, style = MaterialTheme.typography.body1)
-            Spacer(modifier = Modifier.height(8.dp))
-        }
-        CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
-            Text(text = article.publishedAt, style = MaterialTheme.typography.body2)
-        }
+        ArticleItemDetails(article)
     }
 }
 
+@ExperimentalCoilApi
 @Composable
 fun ArticleListColumnItem(
     article: ArticleUI,
@@ -191,15 +210,7 @@ fun ArticleListColumnItem(
             )
             Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(text = article.title, style = MaterialTheme.typography.subtitle2)
-                Spacer(modifier = Modifier.height(8.dp))
-                article.author?.let {
-                    Text(text = article.author, style = MaterialTheme.typography.body1)
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
-                CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
-                    Text(text = article.publishedAt, style = MaterialTheme.typography.body2)
-                }
+                ArticleItemDetails(article)
             }
             BookmarkButton(
                 modifier = Modifier.align(Alignment.CenterVertically),
@@ -208,6 +219,19 @@ fun ArticleListColumnItem(
                 onBookmarkSelected(article)
             }
         }
+    }
+}
+
+@Composable
+private fun ArticleItemDetails(article: ArticleUI) {
+    Text(text = article.title, style = MaterialTheme.typography.subtitle2)
+    Spacer(modifier = Modifier.height(8.dp))
+    article.author?.let {
+        Text(text = article.author, style = MaterialTheme.typography.body1)
+        Spacer(modifier = Modifier.height(8.dp))
+    }
+    CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
+        Text(text = article.publishedAt, style = MaterialTheme.typography.body2)
     }
 }
 
