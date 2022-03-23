@@ -54,7 +54,11 @@ fun TopStories(
 ) {
     SectionTitle(title = stringResource(id = R.string.home_top_section_title))
     Spacer(modifier = Modifier.height(12.dp))
-    HeadlineItem(article = headlines.topHeadline)
+    HeadlineItem(
+        article = headlines.topHeadline,
+        onArticleClicked = onArticleClicked,
+        onBookmarkSelected = onBookmarkSelected
+    )
     SectionDivider()
     headlines.otherHeadlines.forEach {
         ArticleListColumnItem(
@@ -126,13 +130,16 @@ fun HomeScreenPreview() {
 
 @ExperimentalCoilApi
 @Composable
-fun HeadlineItem(article: ArticleUI) {
+fun HeadlineItem(
+    article: ArticleUI, onArticleClicked: (ArticleUI) -> Unit,
+    onBookmarkSelected: (ArticleUI) -> Unit
+) {
     val painter = rememberImagePainter(data = article.urlToImage)
     val imageModifier = Modifier
         .heightIn(min = 180.dp)
         .fillMaxWidth()
         .clip(shape = MaterialTheme.shapes.medium)
-    Column {
+    Column(modifier = Modifier.clickable { onArticleClicked(article) }) {
         Image(
             painter = painter,
             contentDescription = article.description,
@@ -140,7 +147,15 @@ fun HeadlineItem(article: ArticleUI) {
             contentScale = ContentScale.Crop
         )
         Spacer(modifier = Modifier.height(12.dp))
-        ArticleItemContent(article = article)
+        Row {
+            ArticleItemContent(article = article, modifier = Modifier.weight(1f))
+            BookmarkButton(
+                modifier = Modifier.align(Alignment.CenterVertically),
+                selected = article.isBookMarked,
+                onSelect = {
+                    onBookmarkSelected(article)
+                })
+        }
     }
 }
 
