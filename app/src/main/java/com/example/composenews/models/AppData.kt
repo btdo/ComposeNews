@@ -26,14 +26,15 @@ val FakeArticle2 = Article(
 )
 
 val FakeHeadlinesUI = HeadlinesUI(
-    FakeArticle.toArticleUI(),
+    ArticleUI.fromArticle(FakeArticle),
     listOf(
-        FakeArticle2.toArticleUI(),
-        FakeArticle2.toArticleUI().copy(title = "Another fake article", isBookMarked = true)
+        ArticleUI.fromArticle(FakeArticle2),
+        ArticleUI.fromArticle(FakeArticle2)
+            .copy(title = "Another fake article", isBookMarked = true)
     )
 )
 val FakeHomeUIState = HomeUI(
     FakeHeadlinesUI,
-    OtherNews(listOf(FakeArticle.toArticleUI(), FakeArticle2.toArticleUI())),
-    OtherNews(listOf(FakeArticle2.toArticleUI()))
+    OtherNews(listOf(ArticleUI.fromArticle(FakeArticle), ArticleUI.fromArticle(FakeArticle2))),
+    OtherNews(listOf(ArticleUI.fromArticle(FakeArticle2)))
 )

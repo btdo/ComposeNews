@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.composenews.di.DefaultDispatcher
 import com.example.composenews.models.*
-import com.example.composenews.repository.ComposeChatRepository
+import com.example.composenews.repository.ComposeNewsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.*
@@ -13,7 +13,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val repository: ComposeChatRepository,
+    private val repository: ComposeNewsRepository,
     @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
 ) : ViewModel() {
     private val _query = MutableSharedFlow<String>(replay = 0)
@@ -44,19 +44,27 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    fun bookmarkArticle(articleUI: ArticleUI) {
+        viewModelScope.launch(defaultDispatcher) {
+            repository.bookmarkArticle(articleUI)
+        }
+    }
+
     private fun getHomeUiState() {
         viewModelScope.launch(defaultDispatcher) {
             val topic = repository.interestedTopics.first()
             combine(
                 repository.getHeadlines(),
-                repository.getHeadlines(category = Category.general, sortBy = SortBy.popularity),
-                repository.everything(query = topic.name)
-            ) { headlines, popular, interested ->
+                repository.getHeadlines(category = topic, sortBy = SortBy.popularity),
+                repository.getBookmarkedArticles()
+            ) { headlines, popular, bookmarked ->
                 QueryResult.Success(
                     HomeUI(
                         HeadlinesUI.fromNetworkResponse(headlines),
                         OtherNews.fromNetworkResponse(popular),
-                        OtherNews.fromNetworkResponse(interested)
+                        OtherNews(bookmarked.map {
+                            ArticleUI.fromArticleEntity(it)
+                        })
                     )
                 )
             }.catch { exception: Throwable ->

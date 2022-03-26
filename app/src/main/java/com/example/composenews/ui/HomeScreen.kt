@@ -196,7 +196,7 @@ fun ArticleListRowItem(
 @Composable
 fun ArticleItemContent(article: ArticleUI, modifier: Modifier = Modifier) {
     Column(modifier = modifier) {
-        Text(text = article.source.name, style = MaterialTheme.typography.subtitle1)
+        Text(text = article.source, style = MaterialTheme.typography.subtitle1)
         Spacer(modifier = Modifier.height(8.dp))
         ArticleItemDetails(article)
     }
@@ -214,7 +214,7 @@ fun ArticleListColumnItem(
         .size(40.dp, 40.dp)
         .clip(shape = MaterialTheme.shapes.small)
     Column(modifier = Modifier.clickable { onArticleClicked(article) }) {
-        Text(text = article.source.name, style = MaterialTheme.typography.subtitle1)
+        Text(text = article.source, style = MaterialTheme.typography.subtitle1)
         Spacer(modifier = Modifier.height(8.dp))
         Row {
             Image(

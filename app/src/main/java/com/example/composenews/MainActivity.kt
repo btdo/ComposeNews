@@ -114,12 +114,12 @@ fun AppScaffolded(homeUI: HomeUI) {
 @Composable
 fun Navigation(
     navController: NavHostController,
-    newsApiResponse: HomeUI,
+    uiState: HomeUI,
     modifier: Modifier = Modifier
 ) {
     NavHost(navController = navController, startDestination = AppScreen.Home.name) {
         composable(AppScreen.Home.name) {
-            HomeScreen(newsApiResponse, {}, {}, modifier = modifier)
+            HomeScreen(uiState, {}, {}, modifier = modifier)
         }
         composable(AppScreen.Interest.name) {
             InterestScreen()

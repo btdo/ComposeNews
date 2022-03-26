@@ -1,5 +1,8 @@
 package com.example.composenews.repository
 
+import com.example.composenews.db.ArticleDao
+import com.example.composenews.db.ArticleEntity
+import com.example.composenews.models.ArticleUI
 import com.example.composenews.models.Category
 import com.example.composenews.models.NewsApiResponse
 import com.example.composenews.models.SortBy
@@ -12,7 +15,7 @@ import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
 
-interface ComposeChatRepository {
+interface ComposeNewsRepository {
     val interestedTopics: Flow<Category>
     suspend fun everything(
         query: String? = null,
@@ -23,12 +26,17 @@ interface ComposeChatRepository {
         category: Category? = null,
         sortBy: SortBy = SortBy.publishedAt
     ): Flow<NewsApiResponse>
+
+    suspend fun getBookmarkedArticles(): Flow<List<ArticleEntity>>
+
+    suspend fun bookmarkArticle(article: ArticleUI)
 }
 
-class ComposeChatRepositoryImpl @Inject constructor(
+class ComposeNewsRepositoryImpl @Inject constructor(
+    private val dao: ArticleDao,
     private val api: NewsApi,
     private val defaultDispatcher: CoroutineDispatcher
-) : ComposeChatRepository {
+) : ComposeNewsRepository {
 
     override val interestedTopics: Flow<Category> =
         flowOf(Category.business, Category.general, Category.sports)
@@ -46,4 +54,8 @@ class ComposeChatRepositoryImpl @Inject constructor(
             emit(apiCall())
         }.flowOn(defaultDispatcher)
     }
+
+    override suspend fun getBookmarkedArticles() = dao.getArticles()
+
+    override suspend fun bookmarkArticle(article: ArticleUI) = dao.insert(article.toArticleEntity())
 }
