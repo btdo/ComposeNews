@@ -12,6 +12,9 @@ interface ArticleDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(vararg articles: ArticleEntity)
 
+    @Delete
+    suspend fun delete(article: ArticleEntity)
+
     @Query("Select * from ArticleEntity ORDER BY dateBookMarked desc")
     fun getArticles(): Flow<List<ArticleEntity>>
 }

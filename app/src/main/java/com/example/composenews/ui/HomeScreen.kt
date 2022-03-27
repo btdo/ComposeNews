@@ -43,6 +43,11 @@ fun HomeScreen(
             onBookmarkSelected = onBookmarkSelected
         )
         PopularStories(popular = homeUI.popular, onArticleClicked, onBookmarkSelected)
+        BookmarkedStories(
+            bookmarkedArticles = homeUI.bookmarked,
+            onArticleClicked = onArticleClicked,
+            onBookmarkSelected = onBookmarkSelected
+        )
     }
 }
 
@@ -50,26 +55,52 @@ fun HomeScreen(
 @Composable
 fun TopStories(
     headlines: HeadlinesUI, onArticleClicked: (ArticleUI) -> Unit,
-    onBookmarkSelected: (ArticleUI) -> Unit,
+    onBookmarkSelected: (ArticleUI) -> Unit, modifier: Modifier = Modifier
 ) {
-    SectionTitle(title = stringResource(id = R.string.home_top_section_title))
-    Spacer(modifier = Modifier.height(12.dp))
-    HeadlineItem(
-        article = headlines.topHeadline,
-        onArticleClicked = onArticleClicked,
-        onBookmarkSelected = onBookmarkSelected
-    )
-    SectionDivider()
-    headlines.otherHeadlines.forEach {
-        ArticleListColumnItem(
-            article = it,
+    Column(modifier = modifier) {
+        SectionTitle(title = stringResource(id = R.string.home_top_section_title))
+        Spacer(modifier = Modifier.height(12.dp))
+        HeadlineItem(
+            article = headlines.topHeadline,
             onArticleClicked = onArticleClicked,
             onBookmarkSelected = onBookmarkSelected
         )
         SectionDivider()
+        headlines.otherHeadlines.forEach {
+            ArticleListColumnItem(
+                article = it,
+                onArticleClicked = onArticleClicked,
+                onBookmarkSelected = onBookmarkSelected
+            )
+            SectionDivider()
+        }
     }
 }
 
+@ExperimentalCoilApi
+@Composable
+fun BookmarkedStories(
+    bookmarkedArticles: OtherNews,
+    onArticleClicked: (ArticleUI) -> Unit,
+    onBookmarkSelected: (ArticleUI) -> Unit, modifier: Modifier = Modifier
+) {
+    if (bookmarkedArticles.articles.isEmpty()) {
+        return
+    }
+
+    Column {
+        SectionTitle(title = stringResource(id = R.string.home_bookmarked_section_title))
+        Spacer(modifier = Modifier.height(12.dp))
+        bookmarkedArticles.articles.forEach {
+            ArticleListColumnItem(
+                article = it,
+                onArticleClicked = onArticleClicked,
+                onBookmarkSelected = onBookmarkSelected
+            )
+            SectionDivider()
+        }
+    }
+}
 
 @ExperimentalCoilApi
 @Composable

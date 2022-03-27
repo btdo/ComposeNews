@@ -16,7 +16,7 @@ data class HeadlinesUI(val topHeadline: ArticleUI, val otherHeadlines: List<Arti
     }
 }
 
-class HomeUI(val headlines: HeadlinesUI, val popular: OtherNews, val topicFavourites: OtherNews)
+data class HomeUI(val headlines: HeadlinesUI, val popular: OtherNews, val bookmarked: OtherNews)
 
 data class OtherNews(val articles: List<ArticleUI>) {
     companion object {
@@ -25,6 +25,12 @@ data class OtherNews(val articles: List<ArticleUI>) {
                 ArticleUI.fromArticle(it)
             }
             return OtherNews(articles)
+        }
+
+        fun fromDaoData(articles: List<ArticleEntity>): OtherNews {
+            return OtherNews(articles.map {
+                ArticleUI.fromArticleEntity(it)
+            })
         }
     }
 }
@@ -84,7 +90,5 @@ data class ArticleUI(
                 isBookMarked = article.isBookMarked
             )
         }
-
-
     }
 }

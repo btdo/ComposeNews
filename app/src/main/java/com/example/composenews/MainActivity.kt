@@ -16,6 +16,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.composenews.models.ArticleUI
 import com.example.composenews.models.FakeHomeUIState
 import com.example.composenews.models.HomeUI
 import com.example.composenews.models.QueryResult
@@ -46,13 +47,19 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainApp(viewModel: MainViewModel) {
     val topHeadlinesNews by viewModel.homeUIState.collectAsStateLifeCycle()
-
+    val navController = rememberNavController()
     when (topHeadlinesNews) {
         is QueryResult.Loading -> {
             LoadingScreen()
         }
         is QueryResult.Success -> {
-            AppScaffolded(homeUI = (topHeadlinesNews as QueryResult.Success<HomeUI>).data)
+            AppScaffolded(
+                homeUI = (topHeadlinesNews as QueryResult.Success<HomeUI>).data,
+                navController = navController, onArticleClicked = {
+                }, onBookmarkSelected = {
+                    viewModel.addOrRemoveBookmark(it)
+                }
+            )
         }
         is QueryResult.Error -> {
             ErrorScreen()
@@ -61,8 +68,12 @@ fun MainApp(viewModel: MainViewModel) {
 }
 
 @Composable
-fun AppScaffolded(homeUI: HomeUI) {
-    val navController = rememberNavController()
+fun AppScaffolded(
+    homeUI: HomeUI,
+    navController: NavHostController = rememberNavController(),
+    onArticleClicked: (ArticleUI) -> Unit,
+    onBookmarkSelected: (ArticleUI) -> Unit
+) {
     val backstackEntry = navController.currentBackStackEntryAsState()
     val currentScreen = AppScreen.fromRoute(backstackEntry.value?.destination?.route)
     val scaffoldState =
@@ -107,7 +118,13 @@ fun AppScaffolded(homeUI: HomeUI) {
             }
         }) {
         val padding = Modifier.padding(it)
-        Navigation(navController = navController, homeUI, padding)
+        Navigation(
+            navController = navController,
+            homeUI,
+            onArticleClicked = onArticleClicked,
+            onBookmarkSelected = onBookmarkSelected,
+            padding
+        )
     }
 }
 
@@ -115,11 +132,13 @@ fun AppScaffolded(homeUI: HomeUI) {
 fun Navigation(
     navController: NavHostController,
     uiState: HomeUI,
+    onArticleClicked: (ArticleUI) -> Unit,
+    onBookmarkSelected: (ArticleUI) -> Unit,
     modifier: Modifier = Modifier
 ) {
     NavHost(navController = navController, startDestination = AppScreen.Home.name) {
         composable(AppScreen.Home.name) {
-            HomeScreen(uiState, {}, {}, modifier = modifier)
+            HomeScreen(uiState, onArticleClicked, onBookmarkSelected, modifier = modifier)
         }
         composable(AppScreen.Interest.name) {
             InterestScreen()
@@ -132,7 +151,7 @@ fun Navigation(
 fun DefaultPreview() {
     ComposeNewsTheme {
         Surface {
-            AppScaffolded(homeUI = FakeHomeUIState)
+            AppScaffolded(homeUI = FakeHomeUIState, onArticleClicked = {}, onBookmarkSelected = {})
         }
     }
 }

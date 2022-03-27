@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
 
-interface ComposeNewsRepository {
+interface NewsRepository {
     val interestedTopics: Flow<Category>
     suspend fun everything(
         query: String? = null,
@@ -32,11 +32,11 @@ interface ComposeNewsRepository {
     suspend fun bookmarkArticle(article: ArticleUI)
 }
 
-class ComposeNewsRepositoryImpl @Inject constructor(
+class ComposeNewsRepository @Inject constructor(
     private val dao: ArticleDao,
     private val api: NewsApi,
     private val defaultDispatcher: CoroutineDispatcher
-) : ComposeNewsRepository {
+) : NewsRepository {
 
     override val interestedTopics: Flow<Category> =
         flowOf(Category.business, Category.general, Category.sports)
@@ -57,5 +57,11 @@ class ComposeNewsRepositoryImpl @Inject constructor(
 
     override suspend fun getBookmarkedArticles() = dao.getArticles()
 
-    override suspend fun bookmarkArticle(article: ArticleUI) = dao.insert(article.toArticleEntity())
+    override suspend fun bookmarkArticle(article: ArticleUI) {
+        if (article.isBookMarked) {
+            dao.delete(article = article.toArticleEntity())
+        } else {
+            dao.insert(article.toArticleEntity())
+        }
+    }
 }
