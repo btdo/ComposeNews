@@ -37,7 +37,8 @@ fun HomeScreen(
                 rememberScrollState()
             )
     ) {
-        TopStories(
+
+    TopStories(
             headlines = homeUI.headlines,
             onArticleClicked = onArticleClicked,
             onBookmarkSelected = onBookmarkSelected

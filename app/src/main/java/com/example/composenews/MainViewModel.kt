@@ -17,26 +17,45 @@ class MainViewModel @Inject constructor(
     @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
 ) : ViewModel() {
     private val _query = MutableSharedFlow<String>(replay = 0)
-    val searchedNews: Flow<QueryResult<NewsApiResponse>> = _query.debounce(1000).filter {
+    val searchedNews: Flow<QueryResult<List<ArticleUI>>> = _query.debounce(1000).filter {
         return@filter it.isNotEmpty()
     }.flatMapLatest {
-        repository.everything(it)
-    }.flatMapLatest {
-        flowOf(QueryResult.Success(it))
+        flowOf(QueryResult.Success(repository.everything(it)))
     }.catch { exception: Throwable ->
         QueryResult.Error(exception = exception)
     }.onStart {
         QueryResult.Loading
     }
 
-    private val _homeUIState =
-        MutableStateFlow<QueryResult<HomeUI>>(QueryResult.Loading)
-    val homeUIState: StateFlow<QueryResult<HomeUI>>
-        get() = _homeUIState
+    private val _homeUIState = MutableStateFlow<QueryResult<HomeUI>>(QueryResult.Loading)
 
     init {
-        getHomeUiState()
+        viewModelScope.launch {
+            combine(
+                repository.headlines,
+                repository.popular,
+                repository.bookmarks
+            ) { headlines, popular, bookmarked ->
+                val headlinesArticles = HeadlinesUI.fromArticles(headlines)
+                val popularArticles = OtherNews(popular)
+                val bookmarkedArticles = OtherNews(bookmarked)
+                QueryResult.Success(
+                    markBookMarks(
+                        headlinesArticles,
+                        popularArticles,
+                        bookmarkedArticles
+                    )
+                )
+            }.catch { exception ->
+                QueryResult.Error(exception = exception)
+            }.collect {
+                _homeUIState.value = it
+            }
+        }
     }
+
+    val homeUIState: StateFlow<QueryResult<HomeUI>>
+        get() = _homeUIState
 
     fun searchNews(query: String) {
         viewModelScope.launch(defaultDispatcher) {
@@ -47,48 +66,9 @@ class MainViewModel @Inject constructor(
     fun addOrRemoveBookmark(articleUI: ArticleUI) {
         viewModelScope.launch(defaultDispatcher) {
             repository.bookmarkArticle(articleUI)
-            repository.getBookmarkedArticles().collect { bookMarked ->
-                _homeUIState.update { it ->
-                    val currentResult = it as QueryResult.Success
-                    QueryResult.Success(
-                        markBookMarks(
-                            currentResult.data.headlines,
-                            currentResult.data.popular,
-                            OtherNews.fromDaoData(bookMarked)
-                        )
-                    )
-                }
-            }
         }
     }
 
-    private fun getHomeUiState() {
-        viewModelScope.launch(defaultDispatcher) {
-            val topic = repository.interestedTopics.first()
-            combine(
-                repository.getHeadlines(),
-                repository.getHeadlines(category = topic, sortBy = SortBy.popularity),
-                repository.getBookmarkedArticles()
-            ) { headlines, popular, bookmarked ->
-                val headlinesArticles = HeadlinesUI.fromNetworkResponse(headlines)
-                val popularArticles = OtherNews.fromNetworkResponse(popular)
-                val bookmarkedArticles = OtherNews.fromDaoData(bookmarked)
-                QueryResult.Success(
-                    markBookMarks(
-                        headlinesArticles,
-                        popularArticles,
-                        bookmarkedArticles
-                    )
-                )
-            }.catch { exception: Throwable ->
-                _homeUIState.value = QueryResult.Error(exception = exception)
-            }.onStart {
-                QueryResult.Loading
-            }.collect {
-                _homeUIState.value = it
-            }
-        }
-    }
 
     private fun markBookMarks(
         headlinesArticles: HeadlinesUI,

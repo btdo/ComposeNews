@@ -4,36 +4,19 @@ import com.example.composenews.db.ArticleEntity
 
 data class HeadlinesUI(val topHeadline: ArticleUI, val otherHeadlines: List<ArticleUI>) {
     companion object {
-        fun fromNetworkResponse(response: NewsApiResponse): HeadlinesUI {
-            val topHeadline = ArticleUI.fromArticle(response.articles[0])
-            val articleUIs = (1 until 4).map {
-                response.articles[it]
-            }.map {
-                ArticleUI.fromArticle(it)
+        fun fromArticles(articles: List<ArticleUI>): HeadlinesUI {
+            val topHeadline = articles[0]
+            val others = (1 until 4).map {
+                articles[it]
             }
-            return HeadlinesUI(topHeadline = topHeadline, otherHeadlines = articleUIs)
+            return HeadlinesUI(topHeadline = topHeadline, otherHeadlines = others)
         }
     }
 }
 
 data class HomeUI(val headlines: HeadlinesUI, val popular: OtherNews, val bookmarked: OtherNews)
 
-data class OtherNews(val articles: List<ArticleUI>) {
-    companion object {
-        fun fromNetworkResponse(response: NewsApiResponse): OtherNews {
-            val articles = response.articles.take(5).map {
-                ArticleUI.fromArticle(it)
-            }
-            return OtherNews(articles)
-        }
-
-        fun fromDaoData(articles: List<ArticleEntity>): OtherNews {
-            return OtherNews(articles.map {
-                ArticleUI.fromArticleEntity(it)
-            })
-        }
-    }
-}
+data class OtherNews(val articles: List<ArticleUI>)
 
 data class ArticleUI(
     val author: String? = null,

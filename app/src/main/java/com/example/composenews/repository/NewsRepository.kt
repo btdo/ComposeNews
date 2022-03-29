@@ -1,33 +1,31 @@
 package com.example.composenews.repository
 
 import com.example.composenews.db.ArticleDao
-import com.example.composenews.db.ArticleEntity
-import com.example.composenews.models.ArticleUI
-import com.example.composenews.models.Category
-import com.example.composenews.models.NewsApiResponse
-import com.example.composenews.models.SortBy
+import com.example.composenews.models.*
 import com.example.composenews.network.NewsApi
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 
 interface NewsRepository {
     val interestedTopics: Flow<Category>
+    val bookmarks: Flow<List<ArticleUI>>
+    val headlines: Flow<List<ArticleUI>>
+    val popular: Flow<List<ArticleUI>>
+
     suspend fun everything(
         query: String? = null,
         sortBy: SortBy = SortBy.publishedAt
-    ): Flow<NewsApiResponse>
+    ): List<ArticleUI>
 
     suspend fun getHeadlines(
         category: Category? = null,
         sortBy: SortBy = SortBy.publishedAt
-    ): Flow<NewsApiResponse>
+    ): List<ArticleUI>
 
-    suspend fun getBookmarkedArticles(): Flow<List<ArticleEntity>>
+    suspend fun getBookmarkedArticles(): Flow<List<ArticleUI>>
 
     suspend fun bookmarkArticle(article: ArticleUI)
 }
@@ -37,29 +35,47 @@ class ComposeNewsRepository @Inject constructor(
     private val api: NewsApi,
     private val defaultDispatcher: CoroutineDispatcher
 ) : NewsRepository {
-
     override val interestedTopics: Flow<Category> =
-        flowOf(Category.business, Category.general, Category.sports)
+        flowOf(Category.business)
 
-    override suspend fun everything(query: String?, sortBy: SortBy): Flow<NewsApiResponse> {
-        return safeApiCall { api.getEverything(query = query, sortBy = sortBy.name) }
+    override val bookmarks: Flow<List<ArticleUI>>
+        get() = dao.getArticles().mapLatest {
+            it.map { entity ->
+                ArticleUI.fromArticleEntity(entity)
+            }
+        }
+
+    override val headlines = flow {
+        emit(getHeadlines())
     }
 
-    override suspend fun getHeadlines(category: Category?, sortBy: SortBy): Flow<NewsApiResponse> {
-        return safeApiCall { api.getTopHeadLines(category = category?.name, sortBy = sortBy.name) }
+    override val popular = interestedTopics.mapLatest {
+        getHeadlines(it, sortBy = SortBy.publishedAt)
     }
 
-    private suspend fun safeApiCall(apiCall: suspend () -> NewsApiResponse): Flow<NewsApiResponse> {
-        return flow {
-            emit(apiCall())
-        }.flowOn(defaultDispatcher)
-    }
+    override suspend fun everything(query: String?, sortBy: SortBy): List<ArticleUI> =
+        withContext(defaultDispatcher) {
+            return@withContext api.getEverything(query = query, sortBy = sortBy.name).toList()
+        }
 
-    override suspend fun getBookmarkedArticles() = dao.getArticles()
+    override suspend fun getHeadlines(category: Category?, sortBy: SortBy): List<ArticleUI> =
+        withContext(defaultDispatcher) {
+            return@withContext api.getTopHeadLines(category = category?.name, sortBy = sortBy.name)
+                .toList()
+        }
+
+    override suspend fun getBookmarkedArticles(): Flow<List<ArticleUI>> =
+        dao.getArticles().mapLatest {
+            val articles = it.map { entity ->
+                ArticleUI.fromArticleEntity(entity)
+            }
+
+            return@mapLatest articles
+        }
 
     override suspend fun bookmarkArticle(article: ArticleUI) {
         if (article.isBookMarked) {
-            dao.delete(article = article.toArticleEntity())
+            dao.update(article = article.toArticleEntity().copy(isBookMarked = false))
         } else {
             dao.insert(article.toArticleEntity())
         }
