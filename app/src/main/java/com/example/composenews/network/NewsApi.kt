@@ -11,7 +11,7 @@ interface NewsApi {
     suspend fun getEverything(
         @Query("q") query: String? = null,
         @Query("sortBy") sortBy: String? = SortBy.publishedAt.name,
-        @Query("pageSize") pageSize: Int? = 5,
+        @Query("pageSize") pageSize: Int? = 20,
         @Query("page") page: Int? = 1
     ): NewsApiResponse
 
@@ -20,7 +20,7 @@ interface NewsApi {
         @Query("country") country: String? = "ca",
         @Query("sortBy") sortBy: String? = SortBy.publishedAt.name,
         @Query("category") category: String? = null,
-        @Query("pageSize") pageSize: Int? = 5,
+        @Query("pageSize") pageSize: Int? = 20,
         @Query("page") page: Int? = 1
     ): NewsApiResponse
 

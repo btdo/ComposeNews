@@ -47,7 +47,7 @@ class MainViewModel @Inject constructor(
                     )
                 )
             }.catch { exception ->
-                QueryResult.Error(exception = exception)
+                _homeUIState.value = QueryResult.Error(exception = exception)
             }.collect {
                 _homeUIState.value = it
             }

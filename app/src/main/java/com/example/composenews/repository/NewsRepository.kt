@@ -75,7 +75,7 @@ class ComposeNewsRepository @Inject constructor(
 
     override suspend fun bookmarkArticle(article: ArticleUI) {
         if (article.isBookMarked) {
-            dao.update(article = article.toArticleEntity().copy(isBookMarked = false))
+            dao.delete(article = article.toArticleEntity())
         } else {
             dao.insert(article.toArticleEntity())
         }
