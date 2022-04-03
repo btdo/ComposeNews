@@ -8,6 +8,8 @@ import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -15,16 +17,48 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
 import com.example.composenews.R
+import com.example.composenews.collectAsStateLifeCycle
 import com.example.composenews.models.*
 
 @ExperimentalCoilApi
 @Composable
 fun HomeScreen(
-    homeUI: HomeUI,
+    viewModel: HomeScreenViewModel = hiltViewModel(),
     onArticleClicked: (ArticleUI) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val homeUI by viewModel.homeUIState.collectAsStateLifeCycle()
+    LaunchedEffect(key1 = viewModel, block = {
+        viewModel.getNewsForHome()
+    })
+
+    when (homeUI) {
+        is QueryResult.Loading -> {
+            LoadingScreen()
+        }
+        is QueryResult.Success -> {
+            HomeScreenMainContent(
+                homeUI = (homeUI as QueryResult.Success<HomeUI>).data,
+                onArticleClicked = onArticleClicked,
+                onBookmarkSelected = {
+                    viewModel.addOrRemoveBookmark(it)
+                },
+                modifier = modifier
+            )
+        }
+        is QueryResult.Error -> {
+            ErrorScreen()
+        }
+    }
+}
+
+@Composable
+fun HomeScreenMainContent(
+    homeUI: HomeUI, onArticleClicked: (ArticleUI) -> Unit,
     onBookmarkSelected: (ArticleUI) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -175,7 +209,7 @@ private fun SectionTitle(title: String) {
 @Preview
 @Composable
 fun HomeScreenPreview() {
-    HomeScreen(FakeHomeUIState, {}, {})
+    HomeScreenMainContent(FakeHomeUIState, {}, {})
 }
 
 @ExperimentalCoilApi

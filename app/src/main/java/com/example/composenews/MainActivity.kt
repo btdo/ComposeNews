@@ -7,8 +7,6 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -18,19 +16,17 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.composenews.models.ArticleUI
-import com.example.composenews.models.FakeHomeUIState
-import com.example.composenews.models.HomeUI
-import com.example.composenews.models.QueryResult
-import com.example.composenews.ui.*
+import com.example.composenews.ui.Drawer
+import com.example.composenews.ui.HomeScreen
+import com.example.composenews.ui.InterestScreen
+import com.example.composenews.ui.TopBar
 import com.example.composenews.ui.theme.ComposeNewsTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
     private val viewModel: MainViewModel by viewModels()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -47,45 +43,23 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MainApp(viewModel: MainViewModel) {
-    val topHeadlinesNews by viewModel.homeUIState.collectAsStateLifeCycle()
     val navController = rememberNavController()
-
-    LaunchedEffect(key1 = viewModel, block = {
-        viewModel.getNewsForHome()
-    })
-
-    when (topHeadlinesNews) {
-        is QueryResult.Loading -> {
-            LoadingScreen()
+    AppScaffolded(
+        navController = navController, onArticleClicked = {
         }
-        is QueryResult.Success -> {
-            AppScaffolded(
-                homeUI = (topHeadlinesNews as QueryResult.Success<HomeUI>).data,
-                navController = navController, onArticleClicked = {
-                }, onBookmarkSelected = {
-                    viewModel.addOrRemoveBookmark(it)
-                }
-            )
-        }
-        is QueryResult.Error -> {
-            ErrorScreen()
-        }
-    }
+    )
 }
 
 @Composable
 fun AppScaffolded(
-    homeUI: HomeUI,
     navController: NavHostController = rememberNavController(),
-    onArticleClicked: (ArticleUI) -> Unit,
-    onBookmarkSelected: (ArticleUI) -> Unit
+    onArticleClicked: (ArticleUI) -> Unit
 ) {
     val backstackEntry = navController.currentBackStackEntryAsState()
     val currentScreen = AppScreen.fromRoute(backstackEntry.value?.destination?.route)
     val scaffoldState =
         rememberScaffoldState(rememberDrawerState(initialValue = DrawerValue.Closed))
     val coroutineScope = rememberCoroutineScope()
-
     Scaffold(
         scaffoldState = scaffoldState,
         topBar = {
@@ -126,9 +100,7 @@ fun AppScaffolded(
         val padding = Modifier.padding(it)
         Navigation(
             navController = navController,
-            homeUI,
             onArticleClicked = onArticleClicked,
-            onBookmarkSelected = onBookmarkSelected,
             padding
         )
     }
@@ -137,14 +109,15 @@ fun AppScaffolded(
 @Composable
 fun Navigation(
     navController: NavHostController,
-    uiState: HomeUI,
     onArticleClicked: (ArticleUI) -> Unit,
-    onBookmarkSelected: (ArticleUI) -> Unit,
     modifier: Modifier = Modifier
 ) {
     NavHost(navController = navController, startDestination = AppScreen.Home.name) {
         composable(AppScreen.Home.name) {
-            HomeScreen(uiState, onArticleClicked, onBookmarkSelected, modifier = modifier)
+            HomeScreen(
+                onArticleClicked = onArticleClicked,
+                modifier = modifier
+            )
         }
         composable(AppScreen.Interest.name) {
             InterestScreen()
@@ -157,7 +130,7 @@ fun Navigation(
 fun DefaultPreview() {
     ComposeNewsTheme {
         Surface {
-            AppScaffolded(homeUI = FakeHomeUIState, onArticleClicked = {}, onBookmarkSelected = {})
+            AppScaffolded(onArticleClicked = {})
         }
     }
 }
