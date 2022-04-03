@@ -10,10 +10,12 @@ import javax.inject.Inject
 
 
 interface NewsRepository {
-    val interestedTopics: Flow<Category>
+    val interestedTopics: StateFlow<Category>
     val bookmarks: Flow<List<ArticleUI>>
-    val headlines: Flow<List<ArticleUI>>
-    val popular: Flow<List<ArticleUI>>
+    val headlines: StateFlow<List<ArticleUI>>
+    val popular: StateFlow<List<ArticleUI>>
+
+    suspend fun getNewsForHome()
 
     suspend fun everything(
         query: String? = null,
@@ -35,8 +37,8 @@ class ComposeNewsRepository @Inject constructor(
     private val api: NewsApi,
     private val defaultDispatcher: CoroutineDispatcher
 ) : NewsRepository {
-    override val interestedTopics: Flow<Category> =
-        flowOf(Category.business)
+    private val _interestedTopics = MutableStateFlow(Category.general)
+    override val interestedTopics = _interestedTopics
 
     override val bookmarks: Flow<List<ArticleUI>>
         get() = dao.getArticles().mapLatest {
@@ -45,12 +47,15 @@ class ComposeNewsRepository @Inject constructor(
             }
         }
 
-    override val headlines = flow {
-        emit(getHeadlines())
-    }
+    private val _headlines = MutableStateFlow<List<ArticleUI>>(listOf())
+    override val headlines = _headlines
 
-    override val popular = interestedTopics.mapLatest {
-        getHeadlines(it, sortBy = SortBy.publishedAt)
+    private val _popular = MutableStateFlow<List<ArticleUI>>(listOf())
+    override val popular = _popular
+
+    override suspend fun getNewsForHome() = withContext(defaultDispatcher) {
+        _headlines.value = getHeadlines()
+        _popular.value = getHeadlines(_interestedTopics.value)
     }
 
     override suspend fun everything(query: String?, sortBy: SortBy): List<ArticleUI> =

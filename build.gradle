@@ -7,6 +7,7 @@ buildscript {
         hilt_version = "2.38.1"
         viewmodel_version = "2.4.0-rc01"
         room_version = "2.4.2"
+        compose_hilt_navigation_version = "1.0.0"
     }
     repositories {
         google()

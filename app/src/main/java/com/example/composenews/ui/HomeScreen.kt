@@ -37,14 +37,13 @@ fun HomeScreen(
                 rememberScrollState()
             )
     ) {
-
-    TopStories(
+        Headlines(
             headlines = homeUI.headlines,
             onArticleClicked = onArticleClicked,
-            onBookmarkSelected = onBookmarkSelected
+            onBookmarkSelected = onBookmarkSelected, {}
         )
-        PopularStories(popular = homeUI.popular, onArticleClicked, onBookmarkSelected)
-        BookmarkedStories(
+        InterestedTopics(interestedTopics = homeUI.popular, onArticleClicked, onBookmarkSelected)
+        Bookmarks(
             bookmarkedArticles = homeUI.bookmarked,
             onArticleClicked = onArticleClicked,
             onBookmarkSelected = onBookmarkSelected
@@ -54,9 +53,12 @@ fun HomeScreen(
 
 @ExperimentalCoilApi
 @Composable
-fun TopStories(
-    headlines: HeadlinesUI, onArticleClicked: (ArticleUI) -> Unit,
-    onBookmarkSelected: (ArticleUI) -> Unit, modifier: Modifier = Modifier
+fun Headlines(
+    headlines: HeadlinesUI,
+    onArticleClicked: (ArticleUI) -> Unit,
+    onBookmarkSelected: (ArticleUI) -> Unit,
+    onViewMore: (ViewMore) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
         SectionTitle(title = stringResource(id = R.string.home_top_section_title))
@@ -75,12 +77,28 @@ fun TopStories(
             )
             SectionDivider()
         }
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+            ViewMoreButton {
+                onViewMore(ViewMore.Headlines)
+            }
+        }
+        SectionDivider()
+    }
+}
+
+@Composable
+fun ViewMoreButton(onViewMore: () -> Unit) {
+    TextButton(onClick = onViewMore) {
+        Text(
+            text = stringResource(id = R.string.view_more),
+            style = MaterialTheme.typography.button
+        )
     }
 }
 
 @ExperimentalCoilApi
 @Composable
-fun BookmarkedStories(
+fun Bookmarks(
     bookmarkedArticles: OtherNews,
     onArticleClicked: (ArticleUI) -> Unit,
     onBookmarkSelected: (ArticleUI) -> Unit, modifier: Modifier = Modifier
@@ -105,8 +123,8 @@ fun BookmarkedStories(
 
 @ExperimentalCoilApi
 @Composable
-private fun PopularStories(
-    popular: OtherNews,
+private fun InterestedTopics(
+    interestedTopics: OtherNews,
     onArticleClicked: (ArticleUI) -> Unit,
     onBookmarkSelected: (ArticleUI) -> Unit
 ) {
@@ -117,7 +135,7 @@ private fun PopularStories(
             .fillMaxWidth()
             .horizontalScroll(rememberScrollState())
     ) {
-        popular.articles.forEach { article ->
+        interestedTopics.articles.forEach { article ->
             Card(
                 shape = MaterialTheme.shapes.medium,
                 modifier = Modifier.size(280.dp, 240.dp)
@@ -139,8 +157,8 @@ private fun PopularStories(
 @Composable
 @Preview
 private fun PopularStoriesPreview() {
-    PopularStories(
-        popular = FakeHomeUIState.popular,
+    InterestedTopics(
+        interestedTopics = FakeHomeUIState.popular,
         onArticleClicked = {},
         onBookmarkSelected = {})
 }

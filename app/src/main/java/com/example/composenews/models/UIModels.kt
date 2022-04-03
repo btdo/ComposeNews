@@ -75,3 +75,7 @@ data class ArticleUI(
         }
     }
 }
+
+enum class ViewMore {
+    Headlines, Topics, Bookmarks
+}

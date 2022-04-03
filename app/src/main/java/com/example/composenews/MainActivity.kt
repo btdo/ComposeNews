@@ -7,6 +7,7 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -48,6 +49,11 @@ class MainActivity : ComponentActivity() {
 fun MainApp(viewModel: MainViewModel) {
     val topHeadlinesNews by viewModel.homeUIState.collectAsStateLifeCycle()
     val navController = rememberNavController()
+
+    LaunchedEffect(key1 = viewModel, block = {
+        viewModel.getNewsForHome()
+    })
+
     when (topHeadlinesNews) {
         is QueryResult.Loading -> {
             LoadingScreen()

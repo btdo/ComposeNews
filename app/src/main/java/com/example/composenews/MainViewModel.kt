@@ -36,6 +36,10 @@ class MainViewModel @Inject constructor(
                 repository.popular,
                 repository.bookmarks
             ) { headlines, popular, bookmarked ->
+                if (headlines.isEmpty()) {
+                    return@combine QueryResult.Loading
+                }
+
                 val headlinesArticles = HeadlinesUI.fromArticles(headlines)
                 val popularArticles = OtherNews(popular)
                 val bookmarkedArticles = OtherNews(bookmarked)
@@ -60,6 +64,16 @@ class MainViewModel @Inject constructor(
     fun searchNews(query: String) {
         viewModelScope.launch(defaultDispatcher) {
             _query.emit(query)
+        }
+    }
+
+    fun getNewsForHome() {
+        viewModelScope.launch {
+            try {
+                repository.getNewsForHome()
+            } catch (e: Exception) {
+                _homeUIState.value = QueryResult.Error(exception = e)
+            }
         }
     }
 
