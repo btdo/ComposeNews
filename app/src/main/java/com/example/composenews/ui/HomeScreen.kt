@@ -29,6 +29,7 @@ import com.example.composenews.models.*
 fun HomeScreen(
     viewModel: HomeScreenViewModel = hiltViewModel(),
     onArticleClicked: (ArticleUI) -> Unit,
+    onViewMore: (ViewMoreCategory) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val homeUI by viewModel.homeUIState.collectAsStateLifeCycle()
@@ -47,6 +48,7 @@ fun HomeScreen(
                 onBookmarkSelected = {
                     viewModel.addOrRemoveBookmark(it)
                 },
+                onViewMore = onViewMore,
                 modifier = modifier
             )
         }
@@ -60,6 +62,7 @@ fun HomeScreen(
 fun HomeScreenMainContent(
     homeUI: HomeUI, onArticleClicked: (ArticleUI) -> Unit,
     onBookmarkSelected: (ArticleUI) -> Unit,
+    onViewMore: (ViewMoreCategory) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -74,7 +77,7 @@ fun HomeScreenMainContent(
         Headlines(
             headlines = homeUI.headlines,
             onArticleClicked = onArticleClicked,
-            onBookmarkSelected = onBookmarkSelected, {}
+            onBookmarkSelected = onBookmarkSelected, onViewMore = onViewMore
         )
         InterestedTopics(interestedTopics = homeUI.popular, onArticleClicked, onBookmarkSelected)
         Bookmarks(
@@ -91,7 +94,7 @@ fun Headlines(
     headlines: HeadlinesUI,
     onArticleClicked: (ArticleUI) -> Unit,
     onBookmarkSelected: (ArticleUI) -> Unit,
-    onViewMore: (ViewMore) -> Unit,
+    onViewMore: (ViewMoreCategory) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
@@ -113,7 +116,7 @@ fun Headlines(
         }
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
             ViewMoreButton {
-                onViewMore(ViewMore.Headlines)
+                onViewMore(ViewMoreCategory.Headlines)
             }
         }
         SectionDivider()
@@ -209,7 +212,7 @@ private fun SectionTitle(title: String) {
 @Preview
 @Composable
 fun HomeScreenPreview() {
-    HomeScreenMainContent(FakeHomeUIState, {}, {})
+    HomeScreenMainContent(FakeHomeUIState, {}, {}, {})
 }
 
 @ExperimentalCoilApi

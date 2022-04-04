@@ -11,14 +11,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.composenews.models.ArticleUI
 import com.example.composenews.ui.Drawer
-import com.example.composenews.ui.HomeScreen
-import com.example.composenews.ui.InterestScreen
 import com.example.composenews.ui.TopBar
 import com.example.composenews.ui.theme.ComposeNewsTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -98,32 +94,13 @@ fun AppScaffolded(
             }
         }) {
         val padding = Modifier.padding(it)
-        Navigation(
+        NavigationGraph(
             navController = navController,
-            onArticleClicked = onArticleClicked,
             padding
         )
     }
 }
 
-@Composable
-fun Navigation(
-    navController: NavHostController,
-    onArticleClicked: (ArticleUI) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    NavHost(navController = navController, startDestination = AppScreen.Home.name) {
-        composable(AppScreen.Home.name) {
-            HomeScreen(
-                onArticleClicked = onArticleClicked,
-                modifier = modifier
-            )
-        }
-        composable(AppScreen.Interest.name) {
-            InterestScreen()
-        }
-    }
-}
 
 @Preview(showBackground = true)
 @Composable

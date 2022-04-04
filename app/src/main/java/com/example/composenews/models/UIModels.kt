@@ -76,6 +76,6 @@ data class ArticleUI(
     }
 }
 
-enum class ViewMore {
+enum class ViewMoreCategory {
     Headlines, Topics, Bookmarks
 }
