@@ -7,6 +7,7 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -56,6 +57,9 @@ fun AppScaffolded(
     val scaffoldState =
         rememberScaffoldState(rememberDrawerState(initialValue = DrawerValue.Closed))
     val coroutineScope = rememberCoroutineScope()
+    val navigationActions = remember(navController) {
+        AppNavigationAction(navController)
+    }
     Scaffold(
         scaffoldState = scaffoldState,
         topBar = {
@@ -73,20 +77,9 @@ fun AppScaffolded(
         drawerBackgroundColor = MaterialTheme.colors.primarySurface,
         drawerContent = {
             Drawer(currentScreen = currentScreen) {
-                navController.navigate(it.name) {
-                    // Pop up to the start destination of the graph to
-                    // avoid building up a large stack of destinations
-                    // on the back stack as users select items
-                    navController.graph.startDestinationRoute?.let { route ->
-                        popUpTo(route) {
-                            saveState = true
-                        }
-                    }
-                    // Avoid multiple copies of the same destination when
-                    // reselecting the same item
-                    launchSingleTop = true
-                    // Restore state when reselecting a previously selected item
-                    restoreState = true
+                when (it) {
+                    AppScreen.Home -> navigationActions.navigateToHome()
+                    AppScreen.Interest -> navigationActions.navigateToInterests()
                 }
                 coroutineScope.launch {
                     scaffoldState.drawerState.close()
@@ -96,6 +89,7 @@ fun AppScaffolded(
         val padding = Modifier.padding(it)
         NavigationGraph(
             navController = navController,
+            navigationActions = navigationActions,
             padding
         )
     }

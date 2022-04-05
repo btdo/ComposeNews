@@ -65,6 +65,8 @@ class ComposeNewsRepository @Inject constructor(
 
     override suspend fun getHeadlines(category: Category?, sortBy: SortBy): List<ArticleUI> =
         withContext(defaultDispatcher) {
+
+
             return@withContext api.getTopHeadLines(category = category?.name, sortBy = sortBy.name)
                 .toList()
         }

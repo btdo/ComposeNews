@@ -1,6 +1,6 @@
 package com.example.composenews.models
 
-data class Article(
+data class NetworkArticle(
     val author: String? = null,
     val content: String? = null,
     val description: String? = null,
@@ -8,6 +8,5 @@ data class Article(
     val source: Source,
     val title: String,
     val url: String,
-    val urlToImage: String? = null,
-    val isBookMarked: Boolean = false
+    val urlToImage: String? = null
 )

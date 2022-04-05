@@ -1,7 +1,7 @@
 package com.example.composenews.models
 
 
-val FakeArticle = Article(
+val FakeArticle = NetworkArticle(
     title = "Russian forces pound Ukraine's capital",
     description = "Russian forces pressed their assault on Ukrainian cities Friday, " +
             "with new missile strikes and shelling on the capital Kyiv and the outskirts " +
@@ -15,7 +15,7 @@ val FakeArticle = Article(
     source = Source(id = "cbc-news", name = "CBC News")
 )
 
-val FakeArticle2 = Article(
+val FakeArticle2 = NetworkArticle(
     title = "Court grants immediate injunction on Beltline protests in Calgary - CBC.ca",
     description = "The City of Calgary has been granted a temporary court injunction to address protesters in the city’s Beltline area.",
     url = "https://www.cbc.ca/news/canada/calgary/court-injunction-calgary-beltline-1.6390183",

@@ -60,17 +60,17 @@ data class ArticleUI(
             )
         }
 
-        fun fromArticle(article: Article): ArticleUI {
+        fun fromArticle(networkArticle: NetworkArticle): ArticleUI {
             return ArticleUI(
-                author = article.author,
-                content = article.content,
-                description = article.description,
-                publishedAt = article.publishedAt,
-                source = article.source.name,
-                title = article.title,
-                url = article.url,
-                urlToImage = article.urlToImage,
-                isBookMarked = article.isBookMarked
+                author = networkArticle.author,
+                content = networkArticle.content,
+                description = networkArticle.description,
+                publishedAt = networkArticle.publishedAt,
+                source = networkArticle.source.name,
+                title = networkArticle.title,
+                url = networkArticle.url,
+                urlToImage = networkArticle.urlToImage,
+                isBookMarked = false
             )
         }
     }

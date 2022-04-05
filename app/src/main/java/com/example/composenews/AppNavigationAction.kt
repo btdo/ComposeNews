@@ -1,7 +1,6 @@
 package com.example.composenews
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -66,11 +65,9 @@ class AppNavigationAction(navController: NavHostController) {
 @Composable
 fun NavigationGraph(
     navController: NavHostController,
+    navigationActions: AppNavigationAction,
     modifier: Modifier = Modifier
 ) {
-    val navigationActions = remember(navController) {
-        AppNavigationAction(navController)
-    }
 
     NavHost(navController = navController, startDestination = AppScreen.Home.name) {
         composable(AppScreen.Home.name) {
