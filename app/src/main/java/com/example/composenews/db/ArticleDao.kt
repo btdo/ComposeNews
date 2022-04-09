@@ -10,11 +10,14 @@ interface ArticleDao {
     fun update(article: ArticleEntity)
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insert(vararg articles: ArticleEntity)
+    fun insert(articles: List<ArticleEntity>)
 
     @Delete
     fun delete(article: ArticleEntity)
 
-    @Query("Select * from ArticleEntity ORDER BY dateBookMarked desc")
-    fun getArticles(): Flow<List<ArticleEntity>>
+    @Query("Select * from ArticleEntity")
+    fun getArticlesByType(): Flow<List<ArticleEntity>>
+
+    @Query("Select * from ArticleEntity where isBookMarked = 1")
+    fun getBookmarks(): Flow<List<ArticleEntity>>
 }

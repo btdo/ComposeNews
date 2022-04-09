@@ -1,6 +1,5 @@
 package com.example.composenews.models
 
-
 val FakeArticle = NetworkArticle(
     title = "Russian forces pound Ukraine's capital",
     description = "Russian forces pressed their assault on Ukrainian cities Friday, " +
@@ -25,16 +24,34 @@ val FakeArticle2 = NetworkArticle(
     source = Source(id = "cbc-news", name = "CBC News")
 )
 
+val responseApi = NewsApiResponse(listOf(FakeArticle, FakeArticle2), status = "ok", 2)
+
 val FakeHeadlinesUI = HeadlinesUI(
-    ArticleUI.fromArticle(FakeArticle),
+    ArticleUI.fromNetworkArticle(FakeArticle, Category.general, ArticleType.headline),
     listOf(
-        ArticleUI.fromArticle(FakeArticle2),
-        ArticleUI.fromArticle(FakeArticle2)
+        ArticleUI.fromNetworkArticle(FakeArticle2, Category.general, ArticleType.headline),
+        ArticleUI.fromNetworkArticle(FakeArticle2, Category.general, ArticleType.headline)
             .copy(title = "Another fake article", isBookMarked = true)
     )
 )
 val FakeHomeUIState = HomeUI(
     FakeHeadlinesUI,
-    OtherNews(listOf(ArticleUI.fromArticle(FakeArticle), ArticleUI.fromArticle(FakeArticle2))),
-    OtherNews(listOf(ArticleUI.fromArticle(FakeArticle2)))
+    OtherNews(
+        listOf(
+            ArticleUI.fromNetworkArticle(
+                FakeArticle,
+                Category.business,
+                ArticleType.topic
+            ), ArticleUI.fromNetworkArticle(FakeArticle2, Category.business, ArticleType.topic)
+        )
+    ),
+    OtherNews(
+        listOf(
+            ArticleUI.fromNetworkArticle(
+                FakeArticle2,
+                Category.business,
+                ArticleType.topic
+            )
+        )
+    )
 )

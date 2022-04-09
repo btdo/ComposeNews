@@ -9,9 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.composenews.models.ArticleUI
-import com.example.composenews.models.FakeArticle
 import com.example.composenews.models.ViewMoreCategory
-import com.example.composenews.ui.ArticleScreen
 import com.example.composenews.ui.HomeScreen
 import com.example.composenews.ui.InterestScreen
 import com.example.composenews.ui.ViewMoreScreen
@@ -92,10 +90,10 @@ fun NavigationGraph(
         composable(
             "${AppScreen.Article.name}/{article}",
             arguments = listOf(navArgument("article") {
-                type = NavType.StringType
+                type = NavType.IntType
             })
         ) {
-            ArticleScreen(article = ArticleUI.fromArticle(FakeArticle))
+
         }
     }
 }

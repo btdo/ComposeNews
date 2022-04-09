@@ -24,19 +24,25 @@ class HomeScreenViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             combine(
-                repository.headlines,
-                repository.popular,
+                repository.articles,
                 repository.bookmarks
-            ) { headlines, popular, bookmarked ->
-                if (headlines.isEmpty()) {
+            ) { articles, bookmarked ->
+                if (articles.isEmpty()) {
                     return@combine QueryResult.Loading
                 }
 
+                val headlines = articles.filter {
+                    it.type == ArticleType.headline
+                }
+                val others = articles.filter {
+                    it.type == ArticleType.topic
+                }
+
                 val headlinesArticles = HeadlinesUI.fromArticles(headlines)
-                val popularArticles = OtherNews(popular)
+                val popularArticles = OtherNews(others)
                 val bookmarkedArticles = OtherNews(bookmarked)
                 QueryResult.Success(
-                    markBookMarks(
+                    HomeUI(
                         headlinesArticles,
                         popularArticles,
                         bookmarkedArticles
@@ -65,28 +71,4 @@ class HomeScreenViewModel @Inject constructor(
             repository.bookmarkArticle(articleUI)
         }
     }
-
-    private fun markBookMarks(
-        headlinesArticles: HeadlinesUI,
-        popularArticles: OtherNews,
-        bookmarkArticles: OtherNews
-    ): HomeUI {
-        val bookmarksMap = bookmarkArticles.articles.map { it.title to it }.toMap()
-        val newTopHeadline =
-            if (bookmarksMap.containsKey(headlinesArticles.topHeadline.title)) headlinesArticles.topHeadline.copy(
-                isBookMarked = true
-            ) else headlinesArticles.topHeadline
-        val newHeadlines = headlinesArticles.otherHeadlines.map {
-            if (bookmarksMap.containsKey(it.title)) it.copy(isBookMarked = true) else it
-        }
-        val newHeadlineArticles = HeadlinesUI(newTopHeadline, newHeadlines)
-
-        val popular = popularArticles.articles.map {
-            if (bookmarksMap.containsKey(it.title)) it.copy(isBookMarked = true) else it
-        }
-        val newPopular = popularArticles.copy(articles = popular)
-
-        return HomeUI(newHeadlineArticles, newPopular, bookmarkArticles)
-    }
-
 }

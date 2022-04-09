@@ -1,6 +1,11 @@
 package com.example.composenews.models
 
 import com.example.composenews.db.ArticleEntity
+import com.example.composenews.db.md5Hash
+import java.time.format.DateTimeFormatter
+import java.util.*
+
+val formatter = DateTimeFormatter.ofPattern("MMMM d, yyyy", Locale.ENGLISH)
 
 data class HeadlinesUI(val topHeadline: ArticleUI, val otherHeadlines: List<ArticleUI>) {
     companion object {
@@ -19,6 +24,7 @@ data class HomeUI(val headlines: HeadlinesUI, val popular: OtherNews, val bookma
 data class OtherNews(val articles: List<ArticleUI>)
 
 data class ArticleUI(
+    val id: String,
     val author: String? = null,
     val content: String? = null,
     val description: String? = null,
@@ -28,11 +34,13 @@ data class ArticleUI(
     val url: String,
     val urlToImage: String? = null,
     val fromTopic: String? = null,
+    val category: Category,
+    val type: ArticleType,
     val isBookMarked: Boolean = false
 ) {
-
     fun toArticleEntity(): ArticleEntity {
         return ArticleEntity(
+            id = id,
             author = author,
             content = content,
             description = description,
@@ -41,6 +49,8 @@ data class ArticleUI(
             title = title,
             urlToImage = urlToImage,
             url = url,
+            category = category.name,
+            type = type.name,
             isBookMarked = isBookMarked
         )
     }
@@ -48,6 +58,7 @@ data class ArticleUI(
     companion object {
         fun fromArticleEntity(entity: ArticleEntity): ArticleUI {
             return ArticleUI(
+                id = entity.id,
                 author = entity.author,
                 content = entity.content,
                 description = entity.description,
@@ -56,12 +67,19 @@ data class ArticleUI(
                 title = entity.title,
                 url = entity.url,
                 urlToImage = entity.urlToImage,
-                isBookMarked = true
+                category = Category.valueOf(entity.category),
+                type = ArticleType.valueOf(entity.type),
+                isBookMarked = entity.isBookMarked
             )
         }
 
-        fun fromArticle(networkArticle: NetworkArticle): ArticleUI {
+        fun fromNetworkArticle(
+            networkArticle: NetworkArticle,
+            category: Category,
+            articleType: ArticleType
+        ): ArticleUI {
             return ArticleUI(
+                id = md5Hash(networkArticle.title),
                 author = networkArticle.author,
                 content = networkArticle.content,
                 description = networkArticle.description,
@@ -70,6 +88,8 @@ data class ArticleUI(
                 title = networkArticle.title,
                 url = networkArticle.url,
                 urlToImage = networkArticle.urlToImage,
+                category = category,
+                type = articleType,
                 isBookMarked = false
             )
         }

@@ -14,7 +14,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.composenews.models.ArticleUI
 import com.example.composenews.ui.Drawer
 import com.example.composenews.ui.TopBar
 import com.example.composenews.ui.theme.ComposeNewsTheme
@@ -42,15 +41,13 @@ class MainActivity : ComponentActivity() {
 fun MainApp(viewModel: MainViewModel) {
     val navController = rememberNavController()
     AppScaffolded(
-        navController = navController, onArticleClicked = {
-        }
+        navController = navController
     )
 }
 
 @Composable
 fun AppScaffolded(
-    navController: NavHostController = rememberNavController(),
-    onArticleClicked: (ArticleUI) -> Unit
+    navController: NavHostController = rememberNavController()
 ) {
     val backstackEntry = navController.currentBackStackEntryAsState()
     val currentScreen = AppScreen.fromRoute(backstackEntry.value?.destination?.route)
@@ -101,7 +98,7 @@ fun AppScaffolded(
 fun DefaultPreview() {
     ComposeNewsTheme {
         Surface {
-            AppScaffolded(onArticleClicked = {})
+            AppScaffolded()
         }
     }
 }
