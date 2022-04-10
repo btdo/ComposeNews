@@ -42,7 +42,7 @@ class ComposeNewsRepository @Inject constructor(
         }
     }
 
-    override val articles: Flow<List<ArticleUI>> = dao.getArticlesByType().mapLatest {
+    override val articles: Flow<List<ArticleUI>> = dao.getArticles().mapLatest {
         it.map { entity ->
             ArticleUI.fromArticleEntity(entity)
         }

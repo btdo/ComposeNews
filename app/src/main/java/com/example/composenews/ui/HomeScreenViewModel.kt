@@ -22,7 +22,7 @@ class HomeScreenViewModel @Inject constructor(
         get() = _homeUIState
 
     init {
-        viewModelScope.launch {
+        viewModelScope.launch(defaultDispatcher) {
             combine(
                 repository.articles,
                 repository.bookmarks

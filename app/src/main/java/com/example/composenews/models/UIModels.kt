@@ -1,11 +1,10 @@
 package com.example.composenews.models
 
 import com.example.composenews.db.ArticleEntity
+import com.example.composenews.db.formatTo
 import com.example.composenews.db.md5Hash
-import java.time.format.DateTimeFormatter
+import com.example.composenews.db.toDate
 import java.util.*
-
-val formatter = DateTimeFormatter.ofPattern("MMMM d, yyyy", Locale.ENGLISH)
 
 data class HeadlinesUI(val topHeadline: ArticleUI, val otherHeadlines: List<ArticleUI>) {
     companion object {
@@ -44,7 +43,7 @@ data class ArticleUI(
             author = author,
             content = content,
             description = description,
-            publishedAt = publishedAt,
+            publishedAt = publishedAt.toDate().time,
             source = source,
             title = title,
             urlToImage = urlToImage,
@@ -62,7 +61,7 @@ data class ArticleUI(
                 author = entity.author,
                 content = entity.content,
                 description = entity.description,
-                publishedAt = entity.publishedAt,
+                publishedAt = Date(entity.publishedAt).formatTo(),
                 source = entity.source,
                 title = entity.title,
                 url = entity.url,

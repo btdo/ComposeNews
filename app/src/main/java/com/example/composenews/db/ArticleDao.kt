@@ -16,7 +16,7 @@ interface ArticleDao {
     fun delete(article: ArticleEntity)
 
     @Query("Select * from ArticleEntity")
-    fun getArticlesByType(): Flow<List<ArticleEntity>>
+    fun getArticles(): Flow<List<ArticleEntity>>
 
     @Query("Select * from ArticleEntity where isBookMarked = 1")
     fun getBookmarks(): Flow<List<ArticleEntity>>
