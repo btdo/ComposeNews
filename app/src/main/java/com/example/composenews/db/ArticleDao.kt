@@ -20,4 +20,7 @@ interface ArticleDao {
 
     @Query("Select * from ArticleEntity where isBookMarked = 1")
     fun getBookmarks(): Flow<List<ArticleEntity>>
+
+    @Query("Select * from ArticleEntity where id = :id")
+    fun getArticle(id: String): ArticleEntity
 }

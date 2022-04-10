@@ -7,7 +7,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.ListAlt
 import androidx.compose.ui.graphics.vector.ImageVector
 
-enum class AppScreen(val drawerIcon: ImageVector, val isInDrawer: Boolean) {
+enum class AppScreen(val drawerIcon: ImageVector, val isRootView: Boolean) {
     Home(Icons.Filled.Home, true),
     Interest(Icons.Filled.ListAlt, true),
     ViewMore(Icons.Filled.ExpandMore, false),

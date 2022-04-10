@@ -62,7 +62,7 @@ fun AppScaffolded(
         topBar = {
             TopBar(
                 currentScreen = currentScreen,
-                rootScreens = AppScreen.values().asList(),
+                rootScreens = AppScreen.values().filter { it.isRootView },
                 onDrawerMenuClicked = {
                     coroutineScope.launch { scaffoldState.drawerState.open() }
                 },

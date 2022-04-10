@@ -3,7 +3,6 @@ package com.example.composenews.models
 import com.example.composenews.db.ArticleEntity
 import com.example.composenews.db.formatTo
 import com.example.composenews.db.md5Hash
-import com.example.composenews.db.toDate
 import java.util.*
 
 data class HeadlinesUI(val topHeadline: ArticleUI, val otherHeadlines: List<ArticleUI>) {
@@ -37,23 +36,6 @@ data class ArticleUI(
     val type: ArticleType,
     val isBookMarked: Boolean = false
 ) {
-    fun toArticleEntity(): ArticleEntity {
-        return ArticleEntity(
-            id = id,
-            author = author,
-            content = content,
-            description = description,
-            publishedAt = publishedAt.toDate().time,
-            source = source,
-            title = title,
-            urlToImage = urlToImage,
-            url = url,
-            category = category.name,
-            type = type.name,
-            isBookMarked = isBookMarked
-        )
-    }
-
     companion object {
         fun fromArticleEntity(entity: ArticleEntity): ArticleUI {
             return ArticleUI(

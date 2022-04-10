@@ -17,18 +17,21 @@ class HomeScreenViewModel @Inject constructor(
     @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
-    private val _homeUIState = MutableStateFlow<QueryResult<HomeUI>>(QueryResult.Loading)
-    val homeUIState: StateFlow<QueryResult<HomeUI>>
+    private val _homeUIState = MutableStateFlow<AppResult<HomeUI>>(AppResult.Loading)
+    val homeUIState: StateFlow<AppResult<HomeUI>>
         get() = _homeUIState
 
     init {
+        viewModelScope.launch {
+            getNewsForHome()
+        }
         viewModelScope.launch(defaultDispatcher) {
             combine(
                 repository.articles,
                 repository.bookmarks
             ) { articles, bookmarked ->
                 if (articles.isEmpty()) {
-                    return@combine QueryResult.Loading
+                    return@combine AppResult.Loading
                 }
 
                 val headlines = articles.filter {
@@ -41,7 +44,7 @@ class HomeScreenViewModel @Inject constructor(
                 val headlinesArticles = HeadlinesUI.fromArticles(headlines)
                 val popularArticles = OtherNews(others)
                 val bookmarkedArticles = OtherNews(bookmarked)
-                QueryResult.Success(
+                AppResult.Success(
                     HomeUI(
                         headlinesArticles,
                         popularArticles,
@@ -49,7 +52,7 @@ class HomeScreenViewModel @Inject constructor(
                     )
                 )
             }.catch { exception ->
-                _homeUIState.value = QueryResult.Error(exception = exception)
+                _homeUIState.value = AppResult.Error(exception = exception)
             }.collect {
                 _homeUIState.value = it
             }
@@ -61,7 +64,7 @@ class HomeScreenViewModel @Inject constructor(
             try {
                 repository.getNewsForHome()
             } catch (e: Exception) {
-                _homeUIState.value = QueryResult.Error(exception = e)
+                _homeUIState.value = AppResult.Error(exception = e)
             }
         }
     }

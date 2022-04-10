@@ -10,6 +10,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.composenews.models.ArticleUI
 import com.example.composenews.models.ViewMoreCategory
+import com.example.composenews.ui.ArticleScreen
 import com.example.composenews.ui.HomeScreen
 import com.example.composenews.ui.InterestScreen
 import com.example.composenews.ui.ViewMoreScreen
@@ -50,7 +51,7 @@ class AppNavigationAction(navController: NavHostController) {
         }
     }
     val navigateToArticle: (article: ArticleUI) -> Unit = {
-        navController.navigate("${AppScreen.Article.name}/${it.title}") {
+        navController.navigate("${AppScreen.Article.name}/${it.id}") {
             popUpTo(navController.graph.findStartDestination().id) {
                 saveState = true
             }
@@ -90,10 +91,11 @@ fun NavigationGraph(
         composable(
             "${AppScreen.Article.name}/{article}",
             arguments = listOf(navArgument("article") {
-                type = NavType.IntType
+                type = NavType.StringType
             })
-        ) {
-
+        ) { entry ->
+            val id = entry.arguments?.getString("article") ?: return@composable
+            ArticleScreen(articleId = id)
         }
     }
 }

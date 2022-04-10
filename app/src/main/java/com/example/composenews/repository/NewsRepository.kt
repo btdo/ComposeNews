@@ -13,6 +13,7 @@ interface NewsRepository {
     val interestedTopics: StateFlow<Category>
     val bookmarks: Flow<List<ArticleUI>>
     val articles: Flow<List<ArticleUI>>
+
     suspend fun getNewsForHome()
 
     suspend fun everything(
@@ -26,6 +27,8 @@ interface NewsRepository {
     ): NewsApiResponse
 
     suspend fun bookmarkArticle(article: ArticleUI)
+
+    suspend fun getArticle(articleId: String): ArticleUI
 }
 
 class ComposeNewsRepository @Inject constructor(
@@ -66,6 +69,11 @@ class ComposeNewsRepository @Inject constructor(
         }
 
     override suspend fun bookmarkArticle(article: ArticleUI) {
-        dao.update(article.copy(isBookMarked = !article.isBookMarked).toArticleEntity())
+        val articleDb = dao.getArticle(article.id)
+        dao.update(articleDb.copy(isBookMarked = !articleDb.isBookMarked))
+    }
+
+    override suspend fun getArticle(articleId: String): ArticleUI = withContext(defaultDispatcher) {
+        return@withContext ArticleUI.fromArticleEntity(dao.getArticle(articleId))
     }
 }

@@ -8,7 +8,6 @@ import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,17 +32,13 @@ fun HomeScreen(
     modifier: Modifier = Modifier
 ) {
     val homeUI by viewModel.homeUIState.collectAsStateLifeCycle()
-    LaunchedEffect(key1 = viewModel, block = {
-        viewModel.getNewsForHome()
-    })
-
     when (homeUI) {
-        is QueryResult.Loading -> {
+        is AppResult.Loading -> {
             LoadingScreen()
         }
-        is QueryResult.Success -> {
+        is AppResult.Success -> {
             HomeScreenMainContent(
-                homeUI = (homeUI as QueryResult.Success<HomeUI>).data,
+                homeUI = (homeUI as AppResult.Success<HomeUI>).data,
                 onArticleClicked = onArticleClicked,
                 onBookmarkSelected = {
                     viewModel.addOrRemoveBookmark(it)
@@ -52,7 +47,7 @@ fun HomeScreen(
                 modifier = modifier
             )
         }
-        is QueryResult.Error -> {
+        is AppResult.Error -> {
             ErrorScreen()
         }
     }

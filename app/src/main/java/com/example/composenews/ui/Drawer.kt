@@ -42,7 +42,7 @@ fun Drawer(
                 color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f)
             )
             Spacer(modifier = Modifier.height(12.dp))
-            AppScreen.values().toList().filter { it.isInDrawer }.forEach { screen ->
+            AppScreen.values().toList().filter { it.isRootView }.forEach { screen ->
                 DrawerItem(screen = screen, currentScreen == screen, onItemClicked)
             }
         }
