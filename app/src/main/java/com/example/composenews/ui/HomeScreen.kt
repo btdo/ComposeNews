@@ -74,7 +74,7 @@ fun HomeScreenMainContent(
             onArticleClicked = onArticleClicked,
             onBookmarkSelected = onBookmarkSelected, onViewMore = onViewMore
         )
-        InterestedTopics(interestedTopics = homeUI.popular, onArticleClicked, onBookmarkSelected)
+        InterestedTopics(interestedTopics = homeUI.interested, onArticleClicked, onBookmarkSelected)
         Bookmarks(
             bookmarkedArticles = homeUI.bookmarked,
             onArticleClicked = onArticleClicked,
@@ -190,7 +190,7 @@ private fun InterestedTopics(
 @Preview
 private fun PopularStoriesPreview() {
     InterestedTopics(
-        interestedTopics = FakeHomeUIState.popular,
+        interestedTopics = FakeHomeUIState.interested,
         onArticleClicked = {},
         onBookmarkSelected = {})
 }

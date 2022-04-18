@@ -15,12 +15,15 @@ interface ArticleDao {
     @Delete
     fun delete(article: ArticleEntity)
 
-    @Query("Select * from ArticleEntity")
-    fun getArticles(): Flow<List<ArticleEntity>>
+    @Query("Select * from ArticleEntity where type = :type order by publishedAt desc")
+    fun getArticles(type: String): Flow<List<ArticleEntity>>
 
     @Query("Select * from ArticleEntity where isBookMarked = 1")
     fun getBookmarks(): Flow<List<ArticleEntity>>
 
     @Query("Select * from ArticleEntity where id = :id")
     fun getArticle(id: String): ArticleEntity
+
+    @Query("Delete from ArticleEntity where isBookMarked != 1")
+    fun deleteAllExceptBookmarks()
 }

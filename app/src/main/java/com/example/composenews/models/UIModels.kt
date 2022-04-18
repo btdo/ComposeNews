@@ -1,15 +1,18 @@
 package com.example.composenews.models
 
+
 import com.example.composenews.db.ArticleEntity
 import com.example.composenews.db.formatTo
 import com.example.composenews.db.md5Hash
 import java.util.*
+import kotlin.math.min
 
 data class HeadlinesUI(val topHeadline: ArticleUI, val otherHeadlines: List<ArticleUI>) {
     companion object {
         fun fromArticles(articles: List<ArticleUI>): HeadlinesUI {
             val topHeadline = articles[0]
-            val others = (1 until 4).map {
+            val limit = min(articles.size, 4)
+            val others = (1 until limit).map {
                 articles[it]
             }
             return HeadlinesUI(topHeadline = topHeadline, otherHeadlines = others)
@@ -17,7 +20,7 @@ data class HeadlinesUI(val topHeadline: ArticleUI, val otherHeadlines: List<Arti
     }
 }
 
-data class HomeUI(val headlines: HeadlinesUI, val popular: OtherNews, val bookmarked: OtherNews)
+data class HomeUI(val headlines: HeadlinesUI, val interested: OtherNews, val bookmarked: OtherNews)
 
 data class OtherNews(val articles: List<ArticleUI>)
 

@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -13,16 +14,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import com.example.composenews.ui.Drawer
 import com.example.composenews.ui.TopBar
 import com.example.composenews.ui.theme.ComposeNewsTheme
+import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
+@ExperimentalAnimationApi
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val viewModel: MainViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -37,17 +40,16 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@ExperimentalAnimationApi
 @Composable
 fun MainApp(viewModel: MainViewModel) {
-    val navController = rememberNavController()
-    AppScaffolded(
-        navController = navController
-    )
+    AppScaffolded()
 }
 
+@ExperimentalAnimationApi
 @Composable
 fun AppScaffolded(
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberAnimatedNavController()
 ) {
     val backstackEntry = navController.currentBackStackEntryAsState()
     val currentScreen = AppScreen.fromRoute(backstackEntry.value?.destination?.route)
@@ -93,6 +95,7 @@ fun AppScaffolded(
 }
 
 
+@ExperimentalAnimationApi
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {

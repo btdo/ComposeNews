@@ -13,5 +13,9 @@ class ArticleEntityTest {
         assertEquals(1649535461000, date.time)
         val strDate = date.formatTo()
         assertEquals("09 Apr. 2022", strDate)
+
+        val str2 = "2022-04-17T14:00:13Z"
+        val date2 = str2.toDate()
+        assertEquals(1650204013000, date2.time)
     }
 }

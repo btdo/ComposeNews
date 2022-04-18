@@ -12,9 +12,10 @@ import javax.inject.Inject
 interface NewsRepository {
     val interestedTopics: StateFlow<Category>
     val bookmarks: Flow<List<ArticleUI>>
-    val articles: Flow<List<ArticleUI>>
+    val interested: Flow<List<ArticleUI>>
+    val headlines: Flow<List<ArticleUI>>
 
-    suspend fun getNewsForHome()
+    suspend fun refreshNews()
 
     suspend fun everything(
         query: String? = null,
@@ -45,13 +46,22 @@ class ComposeNewsRepository @Inject constructor(
         }
     }
 
-    override val articles: Flow<List<ArticleUI>> = dao.getArticles().mapLatest {
-        it.map { entity ->
-            ArticleUI.fromArticleEntity(entity)
-        }
-    }.flowOn(defaultDispatcher)
+    override val headlines: Flow<List<ArticleUI>> =
+        dao.getArticles(ArticleType.headline.name).mapLatest {
+            it.map { entity ->
+                ArticleUI.fromArticleEntity(entity)
+            }
+        }.flowOn(defaultDispatcher)
 
-    override suspend fun getNewsForHome() = withContext(defaultDispatcher) {
+    override val interested: Flow<List<ArticleUI>> =
+        dao.getArticles(ArticleType.topic.name).mapLatest {
+            it.map { entity ->
+                ArticleUI.fromArticleEntity(entity)
+            }
+        }.flowOn(defaultDispatcher)
+
+    override suspend fun refreshNews() = withContext(defaultDispatcher) {
+        dao.deleteAllExceptBookmarks()
         val headlines = getHeadlines().toList(Category.general, ArticleType.headline)
         val interested =
             getHeadlines(_interestedTopics.value).toList(_interestedTopics.value, ArticleType.topic)

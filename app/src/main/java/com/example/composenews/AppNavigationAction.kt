@@ -1,12 +1,12 @@
 package com.example.composenews
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.composenews.models.ArticleUI
 import com.example.composenews.models.ViewMoreCategory
@@ -14,7 +14,8 @@ import com.example.composenews.ui.ArticleScreen
 import com.example.composenews.ui.HomeScreen
 import com.example.composenews.ui.InterestScreen
 import com.example.composenews.ui.ViewMoreScreen
-
+import com.google.accompanist.navigation.animation.AnimatedNavHost
+import com.google.accompanist.navigation.animation.composable
 
 class AppNavigationAction(navController: NavHostController) {
     val navigateToHome: () -> Unit = {
@@ -61,6 +62,7 @@ class AppNavigationAction(navController: NavHostController) {
     }
 }
 
+@ExperimentalAnimationApi
 @Composable
 fun NavigationGraph(
     navController: NavHostController,
@@ -68,7 +70,17 @@ fun NavigationGraph(
     modifier: Modifier = Modifier
 ) {
 
-    NavHost(navController = navController, startDestination = AppScreen.Home.name) {
+    AnimatedNavHost(
+        navController = navController,
+        startDestination = AppScreen.Home.name,
+        enterTransition = {
+            slideInVertically(initialOffsetY = { 1000 })
+        },
+        exitTransition = {
+            fadeOut(animationSpec = tween(0))
+        },
+        popEnterTransition = { slideInVertically(initialOffsetY = { -1000 }) },
+        popExitTransition = { fadeOut(animationSpec = tween(0)) }) {
         composable(AppScreen.Home.name) {
             HomeScreen(
                 onArticleClicked = navigationActions.navigateToArticle,
@@ -92,7 +104,8 @@ fun NavigationGraph(
             "${AppScreen.Article.name}/{article}",
             arguments = listOf(navArgument("article") {
                 type = NavType.StringType
-            })
+            }
+            )
         ) { entry ->
             val id = entry.arguments?.getString("article") ?: return@composable
             ArticleScreen(articleId = id)

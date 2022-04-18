@@ -9,6 +9,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -16,53 +17,46 @@ class HomeScreenViewModel @Inject constructor(
     private val repository: NewsRepository,
     @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
 ) : ViewModel() {
-
     private val _homeUIState = MutableStateFlow<AppResult<HomeUI>>(AppResult.Loading)
     val homeUIState: StateFlow<AppResult<HomeUI>>
         get() = _homeUIState
 
     init {
-        viewModelScope.launch {
-            getNewsForHome()
-        }
+        refreshNewsForHome()
+
         viewModelScope.launch(defaultDispatcher) {
             combine(
-                repository.articles,
+                repository.headlines,
+                repository.interested,
                 repository.bookmarks
-            ) { articles, bookmarked ->
-                if (articles.isEmpty()) {
+            ) { headlines, interested, bookmarked ->
+                if (headlines.isEmpty()) {
                     return@combine AppResult.Loading
                 }
 
-                val headlines = articles.filter {
-                    it.type == ArticleType.headline
-                }
-                val others = articles.filter {
-                    it.type == ArticleType.topic
-                }
-
                 val headlinesArticles = HeadlinesUI.fromArticles(headlines)
-                val popularArticles = OtherNews(others)
-                val bookmarkedArticles = OtherNews(bookmarked)
+                val interestedArticles = OtherNews(interested.take(5))
+                val bookmarkedArticles = OtherNews(bookmarked.take(5))
                 AppResult.Success(
                     HomeUI(
                         headlinesArticles,
-                        popularArticles,
+                        interestedArticles,
                         bookmarkedArticles
                     )
                 )
             }.catch { exception ->
                 _homeUIState.value = AppResult.Error(exception = exception)
-            }.collect {
+                Timber.e(exception)
+            }.flowOn(defaultDispatcher).collect {
                 _homeUIState.value = it
             }
         }
     }
 
-    fun getNewsForHome() {
+    private fun refreshNewsForHome() {
         viewModelScope.launch {
             try {
-                repository.getNewsForHome()
+                repository.refreshNews()
             } catch (e: Exception) {
                 _homeUIState.value = AppResult.Error(exception = e)
             }
