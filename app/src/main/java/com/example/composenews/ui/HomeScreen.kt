@@ -31,18 +31,16 @@ fun HomeScreen(
     onViewMore: (ViewMoreCategory) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val homeUI by viewModel.homeUIState.collectAsStateLifeCycle()
-    when (homeUI) {
+    val homeState by viewModel.uiState.collectAsStateLifeCycle()
+    when (homeState.result) {
         is AppResult.Loading -> {
             LoadingScreen()
         }
         is AppResult.Success -> {
             HomeScreenMainContent(
-                homeUI = (homeUI as AppResult.Success<HomeUI>).data,
+                homeUI = homeState,
                 onArticleClicked = onArticleClicked,
-                onBookmarkSelected = {
-                    viewModel.addOrRemoveBookmark(it)
-                },
+                onBookmarkSelected = viewModel::addOrRemoveBookmark,
                 onViewMore = onViewMore,
                 modifier = modifier
             )
@@ -53,9 +51,10 @@ fun HomeScreen(
     }
 }
 
+@ExperimentalCoilApi
 @Composable
 fun HomeScreenMainContent(
-    homeUI: HomeUI, onArticleClicked: (ArticleUI) -> Unit,
+    homeUI: HomeState, onArticleClicked: (ArticleUI) -> Unit,
     onBookmarkSelected: (ArticleUI) -> Unit,
     onViewMore: (ViewMoreCategory) -> Unit,
     modifier: Modifier = Modifier
@@ -70,13 +69,13 @@ fun HomeScreenMainContent(
             )
     ) {
         Headlines(
-            headlines = homeUI.headlines,
+            headlines = HeadlinesUI.fromArticles(homeUI.headlines.articles),
             onArticleClicked = onArticleClicked,
             onBookmarkSelected = onBookmarkSelected, onViewMore = onViewMore
         )
         InterestedTopics(interestedTopics = homeUI.interested, onArticleClicked, onBookmarkSelected)
         Bookmarks(
-            bookmarkedArticles = homeUI.bookmarked,
+            bookmarkedArticles = homeUI.bookmarks,
             onArticleClicked = onArticleClicked,
             onBookmarkSelected = onBookmarkSelected
         )
@@ -131,7 +130,7 @@ fun ViewMoreButton(onViewMore: () -> Unit) {
 @ExperimentalCoilApi
 @Composable
 fun Bookmarks(
-    bookmarkedArticles: OtherNews,
+    bookmarkedArticles: NewsUI,
     onArticleClicked: (ArticleUI) -> Unit,
     onBookmarkSelected: (ArticleUI) -> Unit, modifier: Modifier = Modifier
 ) {
@@ -156,7 +155,7 @@ fun Bookmarks(
 @ExperimentalCoilApi
 @Composable
 private fun InterestedTopics(
-    interestedTopics: OtherNews,
+    interestedTopics: NewsUI,
     onArticleClicked: (ArticleUI) -> Unit,
     onBookmarkSelected: (ArticleUI) -> Unit
 ) {
@@ -203,12 +202,6 @@ private fun SectionTitle(title: String) {
     )
 }
 
-@ExperimentalCoilApi
-@Preview
-@Composable
-fun HomeScreenPreview() {
-    HomeScreenMainContent(FakeHomeUIState, {}, {}, {})
-}
 
 @ExperimentalCoilApi
 @Composable
@@ -355,4 +348,16 @@ fun SectionDivider() {
         modifier = Modifier.padding(top = 12.dp, bottom = 12.dp),
         color = MaterialTheme.colors.onSurface.copy(alpha = 0.08f)
     )
+}
+
+
+@ExperimentalCoilApi
+@Preview
+@Composable
+fun HomeScreenPreview() {
+    HomeScreenMainContent(
+        FakeHomeUIState,
+        onArticleClicked = {},
+        onBookmarkSelected = {},
+        onViewMore = {})
 }

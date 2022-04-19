@@ -20,9 +20,16 @@ data class HeadlinesUI(val topHeadline: ArticleUI, val otherHeadlines: List<Arti
     }
 }
 
-data class HomeUI(val headlines: HeadlinesUI, val interested: OtherNews, val bookmarked: OtherNews)
+data class HomeState(
+    val result: AppResult<Unit>,
+    val headlines: NewsUI,
+    val interested: NewsUI,
+    val bookmarks: NewsUI
+)
 
-data class OtherNews(val articles: List<ArticleUI>)
+data class HomeUI(val headlines: HeadlinesUI, val interested: NewsUI, val bookmarks: NewsUI)
+
+data class NewsUI(val articles: List<ArticleUI>)
 
 data class ArticleUI(
     val id: String,

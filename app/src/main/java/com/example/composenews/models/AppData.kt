@@ -34,9 +34,17 @@ val FakeHeadlinesUI = HeadlinesUI(
             .copy(title = "Another fake article", isBookMarked = true)
     )
 )
-val FakeHomeUIState = HomeUI(
-    FakeHeadlinesUI,
-    OtherNews(
+val FakeHomeUIState = HomeState(
+    AppResult.Success(Unit),
+    NewsUI(
+        listOf(
+            ArticleUI.fromNetworkArticle(FakeArticle, Category.general, ArticleType.headline),
+            ArticleUI.fromNetworkArticle(FakeArticle2, Category.general, ArticleType.headline),
+            ArticleUI.fromNetworkArticle(FakeArticle2, Category.general, ArticleType.headline)
+                .copy(title = "Another fake article", isBookMarked = true)
+        )
+    ),
+    NewsUI(
         listOf(
             ArticleUI.fromNetworkArticle(
                 FakeArticle,
@@ -45,7 +53,7 @@ val FakeHomeUIState = HomeUI(
             ), ArticleUI.fromNetworkArticle(FakeArticle2, Category.business, ArticleType.topic)
         )
     ),
-    OtherNews(
+    NewsUI(
         listOf(
             ArticleUI.fromNetworkArticle(
                 FakeArticle2,

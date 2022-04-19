@@ -10,10 +10,7 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.example.composenews.models.ArticleUI
 import com.example.composenews.models.ViewMoreCategory
-import com.example.composenews.ui.ArticleScreen
-import com.example.composenews.ui.HomeScreen
-import com.example.composenews.ui.InterestScreen
-import com.example.composenews.ui.ViewMoreScreen
+import com.example.composenews.ui.*
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 
@@ -69,7 +66,6 @@ fun NavigationGraph(
     navigationActions: AppNavigationAction,
     modifier: Modifier = Modifier
 ) {
-
     AnimatedNavHost(
         navController = navController,
         startDestination = AppScreen.Home.name,
