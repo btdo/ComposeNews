@@ -1,6 +1,5 @@
 package com.example.composenews.ui
 
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -31,5 +30,5 @@ fun ArticleScreen(articleId: String, viewModel: ArticleScreenViewModel = hiltVie
 
 @Composable
 fun ArticleScreenContent(articleUI: ArticleUI) {
-    Text("Article Screen ${articleUI.title}")
+    WebviewPage(url = articleUI.url)
 }

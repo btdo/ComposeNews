@@ -159,7 +159,7 @@ private fun InterestedTopics(
     onArticleClicked: (ArticleUI) -> Unit,
     onBookmarkSelected: (ArticleUI) -> Unit
 ) {
-    SectionTitle(title = stringResource(id = R.string.home_popular_section_title))
+    SectionTitle(title = stringResource(id = R.string.home_interested_topics_title))
     Spacer(modifier = Modifier.height(12.dp))
     Row(
         modifier = Modifier
