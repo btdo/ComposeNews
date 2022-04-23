@@ -8,12 +8,14 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
+val DefaultPageSize = 20
 
 interface NewsRepository {
     val interestedTopics: StateFlow<Category>
     val bookmarks: Flow<List<ArticleUI>>
     val interested: Flow<List<ArticleUI>>
     val headlines: Flow<List<ArticleUI>>
+    val selectedViewMore: StateFlow<ViewMoreCategory>
 
     suspend fun refreshNews()
 
@@ -23,13 +25,23 @@ interface NewsRepository {
     ): NewsApiResponse
 
     suspend fun getHeadlines(
-        category: Category? = null,
-        sortBy: SortBy = SortBy.publishedAt
+        category: Category = Category.general,
+        sortBy: SortBy = SortBy.publishedAt,
+        pageSize: Int? = DefaultPageSize,
+        page: Int? = 1
     ): NewsApiResponse
+
+    suspend fun loadHeadlines(
+        category: Category = Category.general,
+        pageSize: Int? = DefaultPageSize,
+        page: Int? = 1, articleType: ArticleType = ArticleType.headline
+    )
 
     suspend fun bookmarkArticle(article: ArticleUI)
 
     suspend fun getArticle(articleId: String): ArticleUI
+
+    suspend fun onViewMoreSelected(selected: ViewMoreCategory)
 }
 
 class ComposeNewsRepository @Inject constructor(
@@ -39,6 +51,10 @@ class ComposeNewsRepository @Inject constructor(
 ) : NewsRepository {
     private val _interestedTopics = MutableStateFlow(Category.business)
     override val interestedTopics = _interestedTopics
+
+    private val _selectedViewMore = MutableStateFlow<ViewMoreCategory>(ViewMoreCategory.Headlines)
+    override val selectedViewMore: StateFlow<ViewMoreCategory>
+        get() = _selectedViewMore
 
     override val bookmarks: Flow<List<ArticleUI>> = dao.getBookmarks().mapLatest {
         it.map { entity ->
@@ -62,10 +78,21 @@ class ComposeNewsRepository @Inject constructor(
 
     override suspend fun refreshNews() = withContext(defaultDispatcher) {
         dao.deleteAllExceptBookmarks()
-        val headlines = getHeadlines().toList(Category.general, ArticleType.headline)
-        val interested =
-            getHeadlines(_interestedTopics.value).toList(_interestedTopics.value, ArticleType.topic)
-        dao.insert(headlines + interested)
+        loadHeadlines(Category.general)
+        loadHeadlines(category = _interestedTopics.value, articleType = ArticleType.topic)
+    }
+
+    override suspend fun loadHeadlines(
+        category: Category,
+        pageSize: Int?,
+        page: Int?, articleType: ArticleType
+    ) {
+        val headlines = getHeadlines(
+            category = category,
+            pageSize = pageSize,
+            page = page
+        ).toList(category = category, articleType)
+        dao.insert(headlines)
     }
 
     override suspend fun everything(query: String?, sortBy: SortBy): NewsApiResponse =
@@ -73,9 +100,19 @@ class ComposeNewsRepository @Inject constructor(
             return@withContext api.getEverything(query = query, sortBy = sortBy.name)
         }
 
-    override suspend fun getHeadlines(category: Category?, sortBy: SortBy): NewsApiResponse =
+    override suspend fun getHeadlines(
+        category: Category,
+        sortBy: SortBy,
+        pageSize: Int?,
+        page: Int?
+    ): NewsApiResponse =
         withContext(defaultDispatcher) {
-            return@withContext api.getTopHeadLines(category = category?.name, sortBy = sortBy.name)
+            return@withContext api.getTopHeadLines(
+                category = category.name,
+                sortBy = sortBy.name,
+                pageSize = pageSize,
+                page = page
+            )
         }
 
     override suspend fun bookmarkArticle(article: ArticleUI) {
@@ -85,5 +122,9 @@ class ComposeNewsRepository @Inject constructor(
 
     override suspend fun getArticle(articleId: String): ArticleUI = withContext(defaultDispatcher) {
         return@withContext ArticleUI.fromArticleEntity(dao.getArticle(articleId))
+    }
+
+    override suspend fun onViewMoreSelected(selected: ViewMoreCategory) {
+        _selectedViewMore.value = selected
     }
 }

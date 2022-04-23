@@ -2,6 +2,7 @@ package com.example.composenews.network
 
 import com.example.composenews.models.NewsApiResponse
 import com.example.composenews.models.SortBy
+import com.example.composenews.repository.DefaultPageSize
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -11,7 +12,7 @@ interface NewsApi {
     suspend fun getEverything(
         @Query("q") query: String? = null,
         @Query("sortBy") sortBy: String? = SortBy.publishedAt.name,
-        @Query("pageSize") pageSize: Int? = 20,
+        @Query("pageSize") pageSize: Int? = DefaultPageSize,
         @Query("page") page: Int? = 1
     ): NewsApiResponse
 
@@ -20,7 +21,7 @@ interface NewsApi {
         @Query("country") country: String? = "ca",
         @Query("sortBy") sortBy: String? = SortBy.publishedAt.name,
         @Query("category") category: String? = null,
-        @Query("pageSize") pageSize: Int? = 20,
+        @Query("pageSize") pageSize: Int? = DefaultPageSize,
         @Query("page") page: Int? = 1
     ): NewsApiResponse
 

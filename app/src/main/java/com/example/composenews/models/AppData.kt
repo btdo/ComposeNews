@@ -26,6 +26,9 @@ val FakeArticle2 = NetworkArticle(
 
 val responseApi = NewsApiResponse(listOf(FakeArticle, FakeArticle2), status = "ok", 2)
 
+val articleUI1 = ArticleUI.fromNetworkArticle(FakeArticle, Category.general, ArticleType.headline)
+val articleUI2 = ArticleUI.fromNetworkArticle(FakeArticle2, Category.general, ArticleType.headline)
+
 val FakeHeadlinesUI = HeadlinesUI(
     ArticleUI.fromNetworkArticle(FakeArticle, Category.general, ArticleType.headline),
     listOf(

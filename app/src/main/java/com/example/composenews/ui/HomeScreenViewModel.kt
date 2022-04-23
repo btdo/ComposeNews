@@ -3,10 +3,7 @@ package com.example.composenews.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.composenews.di.DefaultDispatcher
-import com.example.composenews.models.AppResult
-import com.example.composenews.models.ArticleUI
-import com.example.composenews.models.HomeState
-import com.example.composenews.models.NewsUI
+import com.example.composenews.models.*
 import com.example.composenews.repository.NewsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -68,6 +65,12 @@ class HomeScreenViewModel @Inject constructor(
     fun addOrRemoveBookmark(articleUI: ArticleUI) {
         viewModelScope.launch(defaultDispatcher) {
             repository.bookmarkArticle(articleUI)
+        }
+    }
+
+    fun onViewMore(category: ViewMoreCategory) {
+        viewModelScope.launch {
+            repository.onViewMoreSelected(category)
         }
     }
 }

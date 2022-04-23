@@ -94,7 +94,7 @@ fun NavigationGraph(
             })
         ) { entry ->
             val category = entry.arguments?.getString("category") ?: return@composable
-            ViewMoreScreen(ViewMoreCategory.valueOf(category))
+            ViewMoreScreen(category = ViewMoreCategory.valueOf(category))
         }
         composable(
             "${AppScreen.Article.name}/{article}",
