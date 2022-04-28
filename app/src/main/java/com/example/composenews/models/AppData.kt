@@ -1,7 +1,7 @@
 package com.example.composenews.models
 
 val FakeArticle = NetworkArticle(
-    title = "Russian forces pound Ukraine's capital",
+    title = "Russian forces pressed their assault on Ukrainian cities Friday, with new missile strikes and shelling on the capital Kyiv and the outskirts",
     description = "Russian forces pressed their assault on Ukrainian cities Friday, " +
             "with new missile strikes and shelling on the capital Kyiv and the outskirts " +
             "of the western city of Lviv, as world leaders pushed for an investigation " +

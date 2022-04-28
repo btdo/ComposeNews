@@ -13,11 +13,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
 import com.example.composenews.models.ArticleUI
+import com.example.composenews.models.FakeHeadlinesUI
+import com.example.composenews.models.articleUI1
 
+
+@Preview
+@Composable
+fun ArticleListRowPreview() {
+    FakeHeadlinesUI
+    ArticleListRowItem(article = articleUI1, onArticleClicked = {}, onBookmarkSelected = {})
+}
 
 @ExperimentalCoilApi
 @Composable
@@ -99,10 +110,20 @@ fun ArticleListColumnItem(
 
 @Composable
 private fun ArticleItemDetails(article: ArticleUI) {
-    Text(text = article.title, style = MaterialTheme.typography.subtitle2)
+    Text(
+        text = article.title,
+        style = MaterialTheme.typography.subtitle2,
+        maxLines = 2,
+        overflow = TextOverflow.Ellipsis
+    )
     Spacer(modifier = Modifier.height(8.dp))
     article.author?.let {
-        Text(text = article.author, style = MaterialTheme.typography.body1)
+        Text(
+            text = article.author,
+            style = MaterialTheme.typography.body1,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
         Spacer(modifier = Modifier.height(8.dp))
     }
     CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
