@@ -30,12 +30,16 @@ class HomeScreenViewModel @Inject constructor(
         refreshNewsForHome()
         viewModelScope.launch(defaultDispatcher) {
             repository.interested.collect {
-                _uiState.value = _uiState.value.copy(interested = NewsUI(it.take(5)))
+                _uiState.value = _uiState.value.copy(interested = NewsUI(it.take(5).map {
+                    ArticleUI.fromArticleEntity(it)
+                }))
             }
         }
         viewModelScope.launch(defaultDispatcher) {
             repository.bookmarks.collect {
-                _uiState.value = _uiState.value.copy(bookmarks = NewsUI(it.take(5)))
+                _uiState.value = _uiState.value.copy(bookmarks = NewsUI(it.take(5).map {
+                    ArticleUI.fromArticleEntity(it)
+                }))
             }
         }
         viewModelScope.launch {
@@ -46,7 +50,9 @@ class HomeScreenViewModel @Inject constructor(
                 }
                 _uiState.value = _uiState.value.copy(
                     result = AppResult.Success(Unit),
-                    headlines = NewsUI(it.take(5))
+                    headlines = NewsUI(it.take(5).map {
+                        ArticleUI.fromArticleEntity(it)
+                    })
                 )
             }
         }
